@@ -59,3 +59,15 @@ function getAllData() {
     faq: getFAQ()
   };
 }
+
+function testLectura() {
+  const data = getAllData();
+  Logger.log('Config keys: ' + Object.keys(data.config).join(', '));
+  Logger.log('WhatsApp: ' + data.config.whatsapp_numero);
+  Logger.log('Servicios count: ' + data.servicios.length);
+  Logger.log('Primer servicio: ' + JSON.stringify(data.servicios[0]));
+  Logger.log('FAQ count: ' + data.faq.length);
+  Logger.log('Flyers count: ' + data.flyers.length);
+  Logger.log('Videos count: ' + data.videos.length);
+  Logger.log('Testimonios count: ' + data.testimonios.length);
+}

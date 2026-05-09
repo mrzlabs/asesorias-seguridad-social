@@ -1,0 +1,37 @@
+<script>
+lucide.createIcons();
+
+document.getElementById('leadForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('submitBtn');
+  const msg = document.getElementById('formMsg');
+  const fd = new FormData(e.target);
+  const data = Object.fromEntries(fd);
+  data.utm_source = window.UTM.source;
+  data.utm_campaign = window.UTM.campaign;
+  data._userAgent = navigator.userAgent;
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+  msg.textContent = '';
+  google.script.run
+    .withSuccessHandler(function(res) {
+      btn.disabled = false;
+      btn.textContent = 'Enviar solicitud';
+      if (res.ok) {
+        msg.className = 'text-center text-sm text-green-600 font-semibold';
+        msg.textContent = res.mensaje;
+        e.target.reset();
+      } else {
+        msg.className = 'text-center text-sm text-red-600 font-semibold';
+        msg.textContent = res.error;
+      }
+    })
+    .withFailureHandler(function(err) {
+      btn.disabled = false;
+      btn.textContent = 'Enviar solicitud';
+      msg.className = 'text-center text-sm text-red-600';
+      msg.textContent = 'Error de conexión';
+    })
+    .registrarLead(data);
+});
+</script>
