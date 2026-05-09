@@ -1,0 +1,6 @@
+﻿name = "asesorias-api-proxy"
+main = "src/index.js"
+compatibility_date = "2026-04-01"
+
+[vars]
+ALLOWED_ORIGIN = "https://asesoriasas.com"

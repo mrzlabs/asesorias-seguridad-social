@@ -92,7 +92,7 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}body{font-family:var(--fb);c
 <div class="modal-ov" id="promoPop"><div class="modal-bx"><button class="modal-x" id="promoX">&times;</button><img class="modal-img" id="ppImg" src="" alt=""><div class="modal-bd"><h3 id="ppTit"></h3><a id="ppWa" href="#" target="_blank" class="btn btn-w" style="width:100%;justify-content:center">Quiero esta promoción</a></div></div></div>
 
 <script>
-const API='https://script.google.com/macros/s/AKfycbzK1AGzOyJXTKRBeQfLujmi7Hrs03-9n6umgqlz3cS_1cz286d7Am2-oOMCKMzpU6k/exec';
+const API='https://asesorias-api-proxy.andresmartinezr2204.workers.dev/api';
 // Slugs que van al 313
 const WA_313=['traslado-eps','traslado-pension','traslado-arl','afiliacion-empresas','soat'];
 const N313='573134572362',N320='573204060607';
@@ -119,7 +119,7 @@ document.getElementById('promoPop').addEventListener('click',e=>{if(e.target===e
 ['hero-wa','ct-wa','wa-fl','f-wa'].forEach(id=>{
 document.getElementById(id).addEventListener('click',function(ev){ev.preventDefault();window.open(gW(),'_blank')})});
 
-async function loadData(){try{const r=await fetch(API+'?action=getAllData');const d=await r.json();render(d)}catch(e){console.error(e)}}
+async function loadData(){try{const r=await fetch(API+'/getAllData');const d=await r.json();render(d)}catch(e){console.error(e)}}
 
 function render(d){
 const c=d.config||{};
@@ -193,7 +193,7 @@ const tl=f.telefono.value.replace(/\s/g,'');if(!/^3\d{9}$/.test(tl)){f.telefono.
 const em=f.email.value.trim();if(em&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){f.email.classList.add('err');ok=false}
 if(f.honeypot.value)return;if(!ok){msg.textContent='Corrige los campos en rojo';msg.className='f-msg er';return}
 btn.disabled=true;btn.textContent='Enviando...';msg.textContent='';
-try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({nombre:nm,telefono:tl,email:em,servicio_interes:f.servicio_interes.value,ciudad:f.ciudad.value.trim(),mensaje:f.mensaje.value.trim(),utm_source:UTM.source,utm_campaign:UTM.campaign,_userAgent:navigator.userAgent,_ip:''})});
+try{const r=await fetch(API+'/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nombre:nm,telefono:tl,email:em,servicio_interes:f.servicio_interes.value,ciudad:f.ciudad.value.trim(),mensaje:f.mensaje.value.trim(),utm_source:UTM.source,utm_campaign:UTM.campaign,_userAgent:navigator.userAgent,_ip:''})});
 const rs=await r.json();if(rs.ok){msg.textContent=rs.mensaje||'Recibido';msg.className='f-msg ok';f.reset()}else{msg.textContent=rs.error||'Error';msg.className='f-msg er'}}catch(er){msg.textContent='Error de conexión';msg.className='f-msg er'}
 btn.disabled=false;btn.textContent='Enviar solicitud'});
 
@@ -202,3 +202,6 @@ loadData();
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js/v8c78df7c7c0f484497ecbca7046644da1771523124516" integrity="sha512-8DS7rgIrAmghBFwoOTujcf6D9rXvH8xm8JQ1Ja01h9QX8EzXldiszufYa4IFfKdLUKTTrnSFXLDkUEOTrZQ8Qg==" data-cf-beacon='{"version":"2024.11.0","token":"d47590ddae214bf89d20d529000284ad","r":1,"server_timing":{"name":{"cfCacheStatus":true,"cfEdge":true,"cfExtPri":true,"cfL4":true,"cfOrigin":true,"cfSpeedBrain":true},"location_startswith":null}}' crossorigin="anonymous"></script>
 </body>
 </html>
+
+
+
