@@ -86,6 +86,25 @@ GitHub mrzlabs/asesorias-seguridad-social
 |
 +---> manual: wrangler deploy (worker/)
 
+## Ambiente de prueba
+
+local
+|
+| npm run dev
+v
+Servidor Node local 127.0.0.1:4322
+|
++---> frontend/index.html
+|
++---> proxy /api hacia Cloudflare Worker
+|
++---> Apps Script Web App
+
+### Validaciones locales
+- `npm run check`: valida marcadores críticos de HTML, formulario, API y sección interactiva
+- `http://127.0.0.1:4322`: valida responsive e interacción antes de publicar
+- `API_PROXY`: permite apuntar el proxy local a otro Worker si se crea ambiente staging
+
 ## Seguridad
 
 - URL Apps Script no expuesta al cliente
@@ -95,6 +114,8 @@ GitHub mrzlabs/asesorias-seguridad-social
 - Honeypot antibot en formulario
 - Validacion telefono colombiano regex 3xxxxxxxxx
 - Hash IP antes de persistir (sin almacenar IP cruda)
+- Headers de frontend: X-Frame-Options, X-Content-Type-Options, Referrer-Policy
+- Separacion de capas: frontend no escribe directo en Sheets
 
 ## Pendientes futuros
 
@@ -102,3 +123,4 @@ GitHub mrzlabs/asesorias-seguridad-social
 - WAF rules en Cloudflare para bloqueos por pais
 - Logging estructurado a R2 o BigQuery
 - Health check automatizado
+- Branch `staging` conectado a Cloudflare Pages Preview
