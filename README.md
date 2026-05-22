@@ -48,6 +48,7 @@ Landing dinamica con backend en Apps Script y frontend estatico en Cloudflare Pa
 - docs/PHVA-tecnica.md
 - docs/arquitectura.md
 - docs/sheets-schema.md
+- docs/estrategia-leads-seo.md
 
 ## Licencia
 
