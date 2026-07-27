@@ -182,12 +182,15 @@ const { servicioPreseleccionado = '' } = Astro.props;
     max-width: 620px;
   }
 
+  /* Oculta sin desplazamiento negativo: left:-9999px agranda el area
+     del documento y falsea capturas y mediciones de layout. */
   .lead__trampa {
     position: absolute;
-    left: -9999px;
     width: 1px;
     height: 1px;
     overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 
   .lead__fila {

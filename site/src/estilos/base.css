@@ -49,10 +49,24 @@ a { color: inherit; text-decoration-color: var(--dorado); text-underline-offset:
 
 .seccion { padding-block: var(--e-16); }
 
-.salto-contenido { position: absolute; left: -9999px; }
+/* Oculto visualmente pero accesible. Se usa clip-path en lugar de
+   left:-9999px: el desplazamiento negativo agranda el area del
+   documento y falsea las capturas y las mediciones de layout. */
+.salto-contenido {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 .salto-contenido:focus {
+  position: fixed;
   left: var(--e-4);
   top: var(--e-4);
+  width: auto;
+  height: auto;
+  clip-path: none;
   z-index: 100;
   background: var(--azul-tinta);
   color: var(--papel);
