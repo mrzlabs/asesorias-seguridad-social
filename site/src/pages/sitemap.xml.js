@@ -1,6 +1,7 @@
-import { SERVICIOS } from '../datos/servicios.js';
+import { obtenerServicios } from '../datos/servicios.js';
 
 export async function GET() {
+  const SERVICIOS = await obtenerServicios();
   const base = 'https://asesoriasas.com';
   const hoy = new Date().toISOString().slice(0, 10);
 

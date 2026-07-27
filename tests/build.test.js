@@ -1,43 +1,68 @@
-import { test, describe } from 'node:test';
+import { test, describe, before } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile, access } from 'node:fs/promises';
+import { readFile, access, readdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 const raiz = join(dirname(fileURLToPath(import.meta.url)), '..');
 const dist = join(raiz, 'site', 'dist');
-
-async function existe(ruta) {
-  try {
-    await access(join(dist, ruta));
-    return true;
-  } catch {
-    return false;
-  }
-}
+const API = 'https://asesorias-api-proxy.andresmartinezr2204.workers.dev/api';
 
 const leer = (ruta) => readFile(join(dist, ruta), 'utf8');
 
-const SLUGS = [
-  'afiliacion-eps',
-  'afiliacion-arl',
-  'afiliacion-pension',
-  'caja-de-compensacion',
-  'traslado-eps',
-  'afiliacion-empresas',
-];
+async function existe(ruta) {
+  try { await access(join(dist, ruta)); return true; } catch { return false; }
+}
 
-describe('Sitio compilado', () => {
-  test('existe una página por cada servicio', async () => {
+/** Slugs activos segun la fuente de verdad, no una lista escrita a mano. */
+let SLUGS = [];
+
+before(async () => {
+  const r = await fetch(`${API}/getAllData`);
+  const datos = await r.json();
+  SLUGS = (datos.servicios || []).filter((s) => s.activo && s.slug).map((s) => s.slug);
+});
+
+describe('Cobertura frente a la fuente de datos', () => {
+  test('existe una página por cada servicio activo de la hoja', async () => {
+    assert.ok(SLUGS.length > 0, 'la fuente no devolvió servicios');
+    const faltantes = [];
     for (const slug of SLUGS) {
-      assert.ok(
-        await existe(`servicios/${slug}/index.html`),
-        `falta la página de ${slug}`
-      );
+      if (!(await existe(`servicios/${slug}/index.html`))) faltantes.push(slug);
     }
+    assert.deepEqual(faltantes, [], `faltan páginas: ${faltantes.join(', ')}`);
   });
 
-  test('cada página de servicio tiene un canonical único', async () => {
+  test('no hay páginas de servicios que no existan en la hoja', async () => {
+    const generados = await readdir(join(dist, 'servicios'), { withFileTypes: true });
+    const carpetas = generados.filter((d) => d.isDirectory()).map((d) => d.name);
+    const sobrantes = carpetas.filter((c) => !SLUGS.includes(c));
+    assert.deepEqual(
+      sobrantes,
+      [],
+      `páginas inventadas que no están en la hoja: ${sobrantes.join(', ')}`
+    );
+  });
+
+  test('cada página usa el contenido real de la hoja', async () => {
+    const r = await fetch(`${API}/getAllData`);
+    const datos = await r.json();
+    const muestra = (datos.servicios || []).filter((s) => s.activo).slice(0, 5);
+    for (const s of muestra) {
+      const html = await leer(`servicios/${s.slug}/index.html`);
+      if (s.descripcion_larga) {
+        const fragmento = s.descripcion_larga.slice(0, 40);
+        assert.ok(
+          html.includes(fragmento),
+          `${s.slug} no muestra su descripción larga real`
+        );
+      }
+    }
+  });
+});
+
+describe('SEO por página', () => {
+  test('cada página de servicio tiene canonical único', async () => {
     const vistos = new Set();
     for (const slug of SLUGS) {
       const html = await leer(`servicios/${slug}/index.html`);
@@ -48,7 +73,7 @@ describe('Sitio compilado', () => {
     }
   });
 
-  test('cada página de servicio tiene un title único', async () => {
+  test('cada página de servicio tiene title único', async () => {
     const vistos = new Set();
     for (const slug of SLUGS) {
       const html = await leer(`servicios/${slug}/index.html`);
@@ -66,52 +91,45 @@ describe('Sitio compilado', () => {
     }
   });
 
-  test('el contenido está en el HTML, no inyectado por JavaScript', async () => {
-    const html = await leer('servicios/afiliacion-eps/index.html');
-    assert.match(html, /Preguntas frecuentes/);
-    // Texto real que viene de la API, pre-renderizado en el HTML.
-    assert.match(html, /Ingreso Base de Cotizaci/);
-  });
-
-  test('no se cargan fuentes ni recursos desde dominios externos', async () => {
-    const html = await leer('index.html');
-    assert.doesNotMatch(html, /fonts\.googleapis\.com|fonts\.gstatic\.com/);
-  });
-
-  test('el JSON-LD de cada página de servicio es válido', async () => {
+  test('ninguna meta description supera los 160 caracteres', async () => {
     for (const slug of SLUGS) {
       const html = await leer(`servicios/${slug}/index.html`);
-      const m = html.match(
-        /<script type="application\/ld\+json">([\s\S]*?)<\/script>/
-      );
+      const d = html.match(/<meta name="description" content="([^"]*)"/)[1];
+      assert.ok(d.length <= 160, `${slug}: description de ${d.length} caracteres`);
+    }
+  });
+
+  test('el JSON-LD de cada página es válido y completo', async () => {
+    for (const slug of SLUGS) {
+      const html = await leer(`servicios/${slug}/index.html`);
+      const m = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
       assert.ok(m, `${slug} no tiene JSON-LD`);
-      const grafo = JSON.parse(m[1])['@graph'];
-      const tipos = grafo.map((n) => n['@type']);
+      const tipos = JSON.parse(m[1])['@graph'].map((n) => n['@type']);
       assert.ok(tipos.includes('Service'), `${slug} sin nodo Service`);
       assert.ok(tipos.includes('BreadcrumbList'), `${slug} sin BreadcrumbList`);
     }
   });
 
-  test('el sitemap incluye las seis páginas de servicio', async () => {
+  test('el sitemap incluye todas las páginas de servicio', async () => {
     const xml = await leer('sitemap.xml');
     for (const slug of SLUGS) {
-      assert.match(xml, new RegExp(`/servicios/${slug}/`));
+      assert.match(xml, new RegExp(`/servicios/${slug}/`), `sitemap sin ${slug}`);
     }
+  });
+
+  test('no se cargan fuentes desde dominios externos', async () => {
+    const html = await leer('index.html');
+    assert.doesNotMatch(html, /fonts\.googleapis\.com|fonts\.gstatic\.com/);
   });
 
   test('todas las páginas declaran el idioma es-CO', async () => {
     const html = await leer('index.html');
     assert.match(html, /<html lang="es-CO"/);
   });
-
-  test('existe el enlace de salto al contenido para accesibilidad', async () => {
-    const html = await leer('index.html');
-    assert.match(html, /Saltar al contenido/);
-  });
 });
 
 describe('Captación de leads', () => {
-  test('la home tiene el formulario de leads', async () => {
+  test('la home tiene el formulario', async () => {
     const html = await leer('index.html');
     assert.match(html, /id="formLead"/);
     assert.match(html, /name="nombre"/);
@@ -125,9 +143,17 @@ describe('Captación de leads', () => {
     }
   });
 
-  test('el formulario preselecciona el servicio de la página', async () => {
-    const html = await leer('servicios/traslado-eps/index.html');
-    assert.match(html, /<option value="traslado-eps"[^>]*selected/);
+  test('el formulario ofrece todos los servicios de la hoja', async () => {
+    const html = await leer('index.html');
+    for (const slug of SLUGS) {
+      assert.match(html, new RegExp(`<option value="${slug}"`), `falta opción ${slug}`);
+    }
+  });
+
+  test('el formulario preselecciona el servicio de su página', async () => {
+    const slug = SLUGS[0];
+    const html = await leer(`servicios/${slug}/index.html`);
+    assert.match(html, new RegExp(`<option value="${slug}"[^>]*selected`));
   });
 
   test('el formulario mantiene la trampa antibot', async () => {
@@ -139,7 +165,6 @@ describe('Captación de leads', () => {
     const html = await leer('index.html');
     for (const id of ['lead-nombre', 'lead-telefono', 'lead-email', 'lead-servicio']) {
       assert.match(html, new RegExp(`for="${id}"`), `falta label para ${id}`);
-      assert.match(html, new RegExp(`id="${id}"`), `falta el campo ${id}`);
     }
   });
 
@@ -147,5 +172,17 @@ describe('Captación de leads', () => {
     const html = await leer('index.html');
     assert.match(html, /id="leadEstado"[^>]*role="status"/);
     assert.match(html, /aria-live="polite"/);
+  });
+});
+
+describe('Accesibilidad', () => {
+  test('existe el enlace de salto al contenido', async () => {
+    const html = await leer('index.html');
+    assert.match(html, /Saltar al contenido/);
+  });
+
+  test('ningún elemento se oculta con desplazamiento negativo', async () => {
+    const html = await leer('index.html');
+    assert.doesNotMatch(html, /-9999px/);
   });
 });

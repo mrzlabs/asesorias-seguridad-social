@@ -1,5 +1,6 @@
 ---
-import { SERVICIOS } from '../datos/servicios.js';
+import { obtenerServicios } from '../datos/servicios.js';
+const SERVICIOS = (await obtenerServicios()).slice(0, 8);
 const anio = new Date().getFullYear();
 ---
 <footer class="pie">
@@ -16,7 +17,7 @@ const anio = new Date().getFullYear();
       <h2 class="pie__tit">Servicios</h2>
       <ul class="pie__lista">
         {SERVICIOS.map((s) => (
-          <li><a href={`/servicios/${s.slug}/`}>{s.titulo}</a></li>
+          <li><a href={`/servicios/${s.slug}/`}>{s.nombre}</a></li>
         ))}
       </ul>
     </nav>

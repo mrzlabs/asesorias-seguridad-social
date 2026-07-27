@@ -2,10 +2,12 @@
 import Base from '../layouts/Base.astro';
 import BotonWhatsApp from '../componentes/BotonWhatsApp.astro';
 import FormularioLead from '../componentes/FormularioLead.astro';
-import { SERVICIOS } from '../datos/servicios.js';
+import { serviciosPorCategoria } from '../datos/servicios.js';
 import { obtenerContenido } from '../datos/api.js';
 
 const datos = await obtenerContenido();
+const grupos = await serviciosPorCategoria();
+const destacados = grupos.flatMap((g) => g.servicios.slice(0, 1)).slice(0, 6);
 const faq = (datos.faq || []).filter((f) => f.activo).slice(0, 6);
 const testimonios = (datos.testimonios || []).filter((t) => t.activo).slice(0, 3);
 
@@ -97,10 +99,10 @@ const PASOS = [
     <div class="contenedor">
       <h2>Qué gestionamos</h2>
       <ul class="rejilla">
-        {SERVICIOS.map((s) => (
+        {destacados.map((s) => (
           <li class="tarjeta">
-            <h3><a href={`/servicios/${s.slug}/`}>{s.titulo}</a></h3>
-            <p>{s.entrada}</p>
+            <h3><a href={`/servicios/${s.slug}/`}>{s.nombre}</a></h3>
+            <p>{s.descripcion_corta}</p>
           </li>
         ))}
       </ul>

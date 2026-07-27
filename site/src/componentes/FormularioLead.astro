@@ -1,8 +1,9 @@
 ---
-import { SERVICIOS } from '../datos/servicios.js';
+import { obtenerServicios } from '../datos/servicios.js';
 
 // servicioPreseleccionado: slug que llega desde una pagina de servicio.
 const { servicioPreseleccionado = '' } = Astro.props;
+const SERVICIOS = await obtenerServicios();
 ---
 <form class="lead" id="formLead" novalidate>
   <!-- Trampa antibot: invisible para personas, tentadora para scripts. -->
@@ -58,7 +59,7 @@ const { servicioPreseleccionado = '' } = Astro.props;
       <option value="">Selecciona un servicio</option>
       {SERVICIOS.map((s) => (
         <option value={s.slug} selected={s.slug === servicioPreseleccionado}>
-          {s.titulo}
+          {s.nombre}
         </option>
       ))}
     </select>

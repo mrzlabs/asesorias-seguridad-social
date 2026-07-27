@@ -1,35 +1,48 @@
 ---
 import Base from '../../layouts/Base.astro';
-import { SERVICIOS } from '../../datos/servicios.js';
+import { serviciosPorCategoria, obtenerServicios } from '../../datos/servicios.js';
+
+const grupos = await serviciosPorCategoria();
+const total = (await obtenerServicios()).length;
 ---
 <Base
-  titulo="Servicios de afiliación a seguridad social | Asesorías SAS"
-  descripcion="Afiliación a EPS, ARL, pensión y caja de compensación para independientes y empresas. Traslados y gestión mensual de planilla en toda Colombia."
+  titulo="Servicios de seguridad social y seguros | Asesorías SAS"
+  descripcion={`${total} servicios: afiliación a EPS, ARL, pensión y caja, seguros, SOAT, PAC y trámites. Para independientes y empresas en toda Colombia.`}
   ruta="/servicios/"
 >
   <section class="cabecera">
     <div class="contenedor">
       <h1>Servicios</h1>
       <p class="entrada">
-        Gestionamos tus afiliaciones y tu planilla mensual. Elige el trámite que
-        necesitas y te contamos cómo funciona.
+        {total} trámites y coberturas gestionados de principio a fin.
+        Elige el que necesitas y te contamos cómo funciona.
       </p>
+
+      <nav class="atajos" aria-label="Categorías">
+        {grupos.map((g) => (
+          <a href={`#${g.clave}`}>{g.etiqueta} <span>{g.servicios.length}</span></a>
+        ))}
+      </nav>
     </div>
   </section>
 
-  <section class="seccion">
-    <div class="contenedor">
-      <ul class="rejilla">
-        {SERVICIOS.map((s) => (
-          <li class="tarjeta">
-            <h2><a href={`/servicios/${s.slug}/`}>{s.titulo}</a></h2>
-            <p>{s.entrada}</p>
-            <span class="tarjeta__mas" aria-hidden="true">Ver detalle →</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  </section>
+  {grupos.map((g) => (
+    <section class="seccion grupo" id={g.clave} data-cat={g.clave}>
+      <div class="contenedor">
+        <h2>{g.etiqueta}</h2>
+        <ul class="rejilla">
+          {g.servicios.map((s) => (
+            <li class="tarjeta">
+              <span class="tarjeta__icono" aria-hidden="true" data-icono={s.icono}></span>
+              <h3><a href={`/servicios/${s.slug}/`}>{s.nombre}</a></h3>
+              <p>{s.descripcion_corta}</p>
+              <span class="tarjeta__mas" aria-hidden="true">Ver detalle</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  ))}
 </Base>
 
 <style>
@@ -40,39 +53,69 @@ import { SERVICIOS } from '../../datos/servicios.js';
   }
   .entrada {
     font-size: var(--t-lg);
-    color: rgba(245, 241, 232, .76);
+    color: rgba(245, 241, 232, .78);
     max-width: 52ch;
     margin-top: var(--e-4);
   }
+  .atajos { display: flex; flex-wrap: wrap; gap: var(--e-2); margin-top: var(--e-8); }
+  .atajos a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--e-2);
+    font-size: var(--t-xs);
+    font-weight: 600;
+    text-decoration: none;
+    padding: var(--e-2) var(--e-3);
+    border: 1px solid rgba(245, 241, 232, .22);
+    border-radius: var(--radio);
+    transition: border-color .18s ease, background-color .18s ease;
+  }
+  .atajos a:hover { border-color: var(--dorado); background: rgba(201, 162, 39, .12); }
+  .atajos span { color: var(--dorado-claro); font-variant-numeric: tabular-nums; }
+
+  .grupo { padding-block: var(--e-12); }
+  .grupo:nth-child(odd) { background: var(--papel-puro); }
+  .grupo h2 { margin-bottom: var(--e-6); }
 
   .rejilla {
     list-style: none;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
-    gap: 1px;
-    background: var(--linea);
-    border: 1px solid var(--linea);
-    border-radius: var(--radio-lg);
-    overflow: hidden;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--e-4);
   }
   .tarjeta {
-    background: var(--papel-puro);
-    padding: var(--e-8) var(--e-6);
-    display: flex;
-    flex-direction: column;
-    gap: var(--e-3);
-    transition: background-color .18s ease;
+    position: relative;
+    display: grid;
+    gap: var(--e-2);
+    padding: var(--e-6);
+    background: var(--papel);
+    border: 1px solid var(--linea);
+    border-radius: var(--radio-lg);
+    transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
   }
-  .tarjeta:hover { background: var(--dorado-tenue); }
-  .tarjeta h2 { font-size: var(--t-lg); }
-  .tarjeta h2 a { text-decoration: none; }
-  .tarjeta h2 a::after { content: ''; position: absolute; inset: 0; }
-  .tarjeta { position: relative; }
+  .grupo:nth-child(odd) .tarjeta { background: var(--papel); }
+  .tarjeta:hover {
+    transform: translateY(-2px);
+    border-color: var(--dorado);
+    box-shadow: 0 6px 20px rgba(11, 37, 69, .09);
+  }
+  .tarjeta__icono {
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radio);
+    background: var(--dorado-tenue);
+    border: 1px solid rgba(201, 162, 39, .35);
+  }
+  .tarjeta h3 { font-size: var(--t-md); }
+  .tarjeta h3 a { text-decoration: none; }
+  .tarjeta h3 a::after { content: ''; position: absolute; inset: 0; }
   .tarjeta p { font-size: var(--t-sm); color: var(--tinta-suave); }
   .tarjeta__mas {
-    margin-top: auto;
     font-size: var(--t-xs);
     font-weight: 600;
     color: var(--azul-medio);
+    opacity: 0;
+    transition: opacity .2s ease;
   }
+  .tarjeta:hover .tarjeta__mas { opacity: 1; }
 </style>
