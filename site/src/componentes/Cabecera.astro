@@ -1,0 +1,69 @@
+---
+import { SERVICIOS } from '../datos/servicios.js';
+---
+<header class="cab">
+  <div class="contenedor cab__in">
+    <a href="/" class="cab__marca">
+      <span class="cab__sello">✓</span>
+      <span>Asesorías <strong>Seguridad Social</strong></span>
+    </a>
+
+    <nav class="cab__nav" aria-label="Principal">
+      <a href="/servicios/">Servicios</a>
+      <a href="/#proceso">Cómo funciona</a>
+      <a href="/#preguntas">Preguntas</a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .cab {
+    background: var(--azul-tinta);
+    color: var(--papel);
+    border-bottom: 1px solid rgba(245, 241, 232, .10);
+  }
+  .cab__in {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--e-6);
+    min-height: 68px;
+    flex-wrap: wrap;
+  }
+  .cab__marca {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--e-3);
+    font-size: var(--t-sm);
+    text-decoration: none;
+    letter-spacing: .01em;
+  }
+  .cab__marca strong { font-weight: 600; }
+  .cab__sello {
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    background: var(--dorado);
+    color: var(--azul-tinta);
+    border-radius: var(--radio);
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .cab__nav {
+    display: flex;
+    gap: var(--e-6);
+    font-size: var(--t-sm);
+  }
+  .cab__nav a {
+    text-decoration: none;
+    color: rgba(245, 241, 232, .78);
+    padding-block: var(--e-2);
+  }
+  .cab__nav a:hover { color: var(--dorado-claro); }
+
+  @media (max-width: 640px) {
+    .cab__in { padding-block: var(--e-3); }
+    .cab__nav { gap: var(--e-4); font-size: var(--t-xs); }
+  }
+</style>

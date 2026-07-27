@@ -5,7 +5,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test \"tests/**/*.test.js\"",
+    "test": "node --test \"tests/seo.test.js\"",
+    "test:build": "node --test \"tests/build.test.js\"",
+    "build": "cd site && npm install && npm run build",
     "mock": "node scripts/mock-server.js"
   },
   "engines": {

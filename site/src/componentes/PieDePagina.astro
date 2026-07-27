@@ -1,0 +1,82 @@
+---
+import { SERVICIOS } from '../datos/servicios.js';
+const anio = new Date().getFullYear();
+---
+<footer class="pie">
+  <div class="contenedor pie__in">
+    <div>
+      <div class="pie__marca">Asesorías Seguridad Social SAS</div>
+      <p class="pie__desc">
+        Afiliaciones y trámites de seguridad social en toda Colombia.
+        Gestión 100% online.
+      </p>
+    </div>
+
+    <nav aria-label="Servicios">
+      <h2 class="pie__tit">Servicios</h2>
+      <ul class="pie__lista">
+        {SERVICIOS.map((s) => (
+          <li><a href={`/servicios/${s.slug}/`}>{s.titulo}</a></li>
+        ))}
+      </ul>
+    </nav>
+
+    <div>
+      <h2 class="pie__tit">Contacto</h2>
+      <ul class="pie__lista">
+        <li><a href="tel:+573204060607">+57 320 406 0607</a></li>
+        <li><a href="tel:+573134572362">+57 313 457 2362</a></li>
+        <li><a href="https://www.facebook.com/Colombiasesorias" rel="noopener">Facebook</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="pie__base">
+    <div class="contenedor">
+      © {anio} Asesorías Seguridad Social SAS · Colombia
+    </div>
+  </div>
+</footer>
+
+<style>
+  .pie {
+    background: var(--azul-tinta);
+    color: rgba(245, 241, 232, .72);
+    margin-top: var(--e-24);
+  }
+  .pie__in {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: var(--e-12);
+    padding-block: var(--e-16) var(--e-12);
+  }
+  .pie__marca {
+    font-family: var(--fuente-titulo);
+    font-size: var(--t-lg);
+    color: var(--papel);
+    margin-bottom: var(--e-3);
+  }
+  .pie__desc { font-size: var(--t-sm); max-width: 34ch; }
+  .pie__tit {
+    font-family: var(--fuente-texto);
+    font-size: var(--t-xs);
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--dorado-claro);
+    margin-bottom: var(--e-4);
+  }
+  .pie__lista { list-style: none; display: grid; gap: var(--e-2); font-size: var(--t-sm); }
+  .pie__lista a { text-decoration: none; }
+  .pie__lista a:hover { color: var(--papel); text-decoration: underline; }
+
+  .pie__base {
+    border-top: 1px solid rgba(245, 241, 232, .10);
+    padding-block: var(--e-4);
+    font-size: var(--t-xs);
+  }
+
+  @media (max-width: 760px) {
+    .pie__in { grid-template-columns: 1fr; gap: var(--e-8); }
+  }
+</style>

@@ -1,0 +1,46 @@
+---
+import '../estilos/tokens.css';
+import '../estilos/base.css';
+import Cabecera from '../componentes/Cabecera.astro';
+import PieDePagina from '../componentes/PieDePagina.astro';
+
+const { titulo, descripcion, ruta = '/', jsonLd = null } = Astro.props;
+const canonical = new URL(ruta, Astro.site).href;
+const imagen = new URL('/og-image.png', Astro.site).href;
+---
+<!DOCTYPE html>
+<html lang="es-CO">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>{titulo}</title>
+  <meta name="description" content={descripcion} />
+  <link rel="canonical" href={canonical} />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <meta name="theme-color" content="#0B2545" />
+
+  <meta property="og:title" content={titulo} />
+  <meta property="og:description" content={descripcion} />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:image" content={imagen} />
+  <meta property="og:locale" content="es_CO" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={titulo} />
+  <meta name="twitter:description" content={descripcion} />
+  <meta name="twitter:image" content={imagen} />
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+</head>
+<body>
+  <a class="salto-contenido" href="#contenido">Saltar al contenido</a>
+  <Cabecera />
+  <main id="contenido">
+    <slot />
+  </main>
+  <PieDePagina />
+</body>
+</html>

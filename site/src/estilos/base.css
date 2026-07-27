@@ -1,0 +1,79 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
+body {
+  font-family: var(--fuente-texto);
+  font-size: var(--t-md);
+  line-height: 1.65;
+  color: var(--tinta);
+  background: var(--papel);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: var(--fuente-titulo);
+  font-weight: 600;
+  line-height: 1.14;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+h1 { font-size: var(--t-2xl); }
+h2 { font-size: var(--t-xl); }
+h3 { font-size: var(--t-lg); }
+
+p { max-width: 68ch; }
+img { max-width: 100%; height: auto; display: block; }
+a { color: inherit; text-decoration-color: var(--dorado); text-underline-offset: 3px; }
+
+/* Foco visible en todo control: requisito WCAG que el sitio anterior no cumplia. */
+:focus-visible {
+  outline: 2px solid var(--dorado);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.contenedor {
+  max-width: var(--ancho);
+  margin-inline: auto;
+  padding-inline: var(--e-6);
+}
+
+.seccion { padding-block: var(--e-16); }
+
+.salto-contenido { position: absolute; left: -9999px; }
+.salto-contenido:focus {
+  left: var(--e-4);
+  top: var(--e-4);
+  z-index: 100;
+  background: var(--azul-tinta);
+  color: var(--papel);
+  padding: var(--e-3) var(--e-4);
+  border-radius: var(--radio);
+}
+
+/* Boton: esquinas cortas, sin gradiente, sin sombra de color. */
+.boton {
+  display: inline-block;
+  font-family: var(--fuente-texto);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  padding: var(--e-3) var(--e-6);
+  border-radius: var(--radio);
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color .18s ease, border-color .18s ease;
+}
+.boton--principal { background: var(--dorado); color: var(--azul-tinta); }
+.boton--principal:hover { background: var(--dorado-claro); }
+.boton--contorno { border-color: currentColor; background: transparent; }
+.boton--contorno:hover { background: rgba(255, 255, 255, .08); }

@@ -1,0 +1,45 @@
+/* Sistema de color: ver ADR 0006.
+   Se abandona el azul medio con acento verde-agua por ser la combinacion
+   que repiten los siete competidores del sector. */
+:root {
+  --azul-tinta:   #0B2545;
+  --azul-medio:   #1B3B6F;
+  --azul-suave:   #2E5288;
+
+  --dorado:       #C9A227;
+  --dorado-claro: #D9B449;
+  --dorado-tenue: #F5EDD4;
+
+  --papel:        #F5F1E8;
+  --papel-puro:   #FCFAF5;
+  --linea:        #E0DACE;
+
+  --tinta:        #16181C;
+  --tinta-suave:  #55595F;
+  --tinta-tenue:  #83878D;
+
+  --alerta:       #A8443A;
+  --exito:        #2F6B4F;
+
+  /* Tipografia: dos familias. Serif de peso institucional para titulares,
+     sans de alta densidad de lectura para texto corrido. */
+  --fuente-titulo: 'Fraunces', 'Iowan Old Style', Georgia, serif;
+  --fuente-texto:  'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --t-xs:  0.8125rem;
+  --t-sm:  0.9375rem;
+  --t-md:  1.0625rem;
+  --t-lg:  clamp(1.2rem, 1rem + 0.9vw, 1.45rem);
+  --t-xl:  clamp(1.7rem, 1.2rem + 2.1vw, 2.4rem);
+  --t-2xl: clamp(2.2rem, 1.4rem + 3.4vw, 3.8rem);
+
+  --e-1: 0.25rem;  --e-2: 0.5rem;   --e-3: 0.75rem;
+  --e-4: 1rem;     --e-6: 1.5rem;   --e-8: 2rem;
+  --e-12: 3rem;    --e-16: 4rem;    --e-24: 6rem;
+
+  /* Radio corto deliberado: las pildoras de 50px son parte del
+     vocabulario visual que se esta retirando. */
+  --radio: 3px;
+  --radio-lg: 6px;
+  --ancho: 1140px;
+}

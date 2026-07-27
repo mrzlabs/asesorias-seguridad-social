@@ -1,0 +1,289 @@
+---
+import Base from '../layouts/Base.astro';
+import BotonWhatsApp from '../componentes/BotonWhatsApp.astro';
+import { SERVICIOS } from '../datos/servicios.js';
+import { obtenerContenido } from '../datos/api.js';
+
+const datos = await obtenerContenido();
+const faq = (datos.faq || []).filter((f) => f.activo).slice(0, 6);
+const testimonios = (datos.testimonios || []).filter((t) => t.activo).slice(0, 3);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'LocalBusiness',
+      '@id': 'https://asesoriasas.com/#organizacion',
+      name: 'Asesorías Seguridad Social SAS',
+      url: 'https://asesoriasas.com/',
+      description:
+        'Afiliación a EPS, ARL, pensión y caja de compensación para independientes y empresas en Colombia.',
+      telephone: '+573204060607',
+      priceRange: '$$',
+      areaServed: { '@type': 'Country', name: 'Colombia' },
+      address: { '@type': 'PostalAddress', addressCountry: 'CO' },
+      sameAs: ['https://www.facebook.com/Colombiasesorias'],
+    },
+    {
+      '@type': 'WebSite',
+      '@id': 'https://asesoriasas.com/#sitio',
+      url: 'https://asesoriasas.com/',
+      name: 'Asesorías Seguridad Social SAS',
+      inLanguage: 'es-CO',
+      publisher: { '@id': 'https://asesoriasas.com/#organizacion' },
+    },
+    ...(faq.length
+      ? [{
+          '@type': 'FAQPage',
+          mainEntity: faq.map((f) => ({
+            '@type': 'Question',
+            name: f.pregunta,
+            acceptedAnswer: { '@type': 'Answer', text: f.respuesta },
+          })),
+        }]
+      : []),
+  ],
+};
+
+const PASOS = [
+  { n: '01', t: 'Nos escribes', d: 'Por WhatsApp o formulario. Cuéntanos qué necesitas.' },
+  { n: '02', t: 'Te asesoramos', d: 'Analizamos tu caso y te decimos qué te conviene y cuánto cuesta.' },
+  { n: '03', t: 'Radicamos', d: 'Hacemos el trámite ante la entidad en menos de 24 horas hábiles.' },
+  { n: '04', t: 'Gestionamos tu planilla', d: 'Cada mes, sin que tengas que hacer nada.' },
+];
+---
+<Base
+  titulo="Afiliación EPS, ARL y Pensión en Colombia | Asesorías SAS"
+  descripcion="Afiliación a EPS, ARL, pensión y caja de compensación para independientes y empresas en toda Colombia. Gestión 100% online en 24 horas."
+  ruta="/"
+  jsonLd={jsonLd}
+>
+  <section class="portada">
+    <div class="contenedor portada__in">
+      <div>
+        <h1>Tu seguridad social, resuelta y al día</h1>
+        <p class="portada__entrada">
+          Afiliamos y mantenemos al día tu EPS, ARL, pensión y caja de compensación.
+          Tú sigues trabajando; nosotros nos encargamos del trámite y de la planilla
+          cada mes.
+        </p>
+        <div class="portada__acciones">
+          <BotonWhatsApp mensaje="Hola, quiero asesoría en seguridad social">
+            Hablar por WhatsApp
+          </BotonWhatsApp>
+          <a class="boton boton--contorno" href="/servicios/">Ver servicios</a>
+        </div>
+      </div>
+
+      <dl class="hechos">
+        <div>
+          <dt>Radicación</dt>
+          <dd>menos de 24 horas hábiles</dd>
+        </div>
+        <div>
+          <dt>Cobertura</dt>
+          <dd>toda Colombia, 100% online</dd>
+        </div>
+        <div>
+          <dt>Planilla</dt>
+          <dd>gestionada cada mes</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="seccion">
+    <div class="contenedor">
+      <h2>Qué gestionamos</h2>
+      <ul class="rejilla">
+        {SERVICIOS.map((s) => (
+          <li class="tarjeta">
+            <h3><a href={`/servicios/${s.slug}/`}>{s.titulo}</a></h3>
+            <p>{s.entrada}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <section class="seccion proceso" id="proceso">
+    <div class="contenedor">
+      <h2>Cómo funciona</h2>
+      <ol class="pasos">
+        {PASOS.map((p) => (
+          <li>
+            <span class="pasos__n">{p.n}</span>
+            <h3>{p.t}</h3>
+            <p>{p.d}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  {testimonios.length > 0 && (
+    <section class="seccion">
+      <div class="contenedor">
+        <h2>Lo que dicen quienes ya lo hicieron</h2>
+        <ul class="testimonios">
+          {testimonios.map((t) => (
+            <li>
+              <blockquote>{t.testimonio}</blockquote>
+              <cite>{t.nombre}<span>{t.cargo_o_ciudad}</span></cite>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  {faq.length > 0 && (
+    <section class="seccion" id="preguntas">
+      <div class="contenedor">
+        <h2>Preguntas frecuentes</h2>
+        <div class="acordeon">
+          {faq.map((f) => (
+            <details>
+              <summary>{f.pregunta}</summary>
+              <p>{f.respuesta}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+</Base>
+
+<style>
+  .portada {
+    background: var(--azul-tinta);
+    color: var(--papel);
+    padding-block: var(--e-24) var(--e-16);
+  }
+  .portada__in {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: var(--e-16);
+    align-items: end;
+  }
+  .portada h1 { max-width: 15ch; }
+  .portada__entrada {
+    font-size: var(--t-lg);
+    line-height: 1.55;
+    color: rgba(245, 241, 232, .76);
+    max-width: 52ch;
+    margin-block: var(--e-6) var(--e-8);
+  }
+  .portada__acciones { display: flex; gap: var(--e-3); flex-wrap: wrap; }
+
+  .hechos {
+    display: grid;
+    gap: var(--e-4);
+    border-left: 2px solid var(--dorado);
+    padding-left: var(--e-6);
+  }
+  .hechos dt {
+    font-size: var(--t-xs);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--dorado-claro);
+  }
+  .hechos dd { font-size: var(--t-sm); color: rgba(245, 241, 232, .82); }
+
+  .rejilla {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+    gap: 1px;
+    background: var(--linea);
+    border: 1px solid var(--linea);
+    border-radius: var(--radio-lg);
+    overflow: hidden;
+    margin-top: var(--e-8);
+  }
+  .tarjeta {
+    position: relative;
+    background: var(--papel-puro);
+    padding: var(--e-8) var(--e-6);
+    transition: background-color .18s ease;
+  }
+  .tarjeta:hover { background: var(--dorado-tenue); }
+  .tarjeta h3 { margin-bottom: var(--e-2); }
+  .tarjeta h3 a { text-decoration: none; }
+  .tarjeta h3 a::after { content: ''; position: absolute; inset: 0; }
+  .tarjeta p { font-size: var(--t-sm); color: var(--tinta-suave); }
+
+  .proceso { background: var(--papel-puro); }
+  .pasos {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: var(--e-8);
+    margin-top: var(--e-8);
+  }
+  .pasos__n {
+    font-family: var(--fuente-titulo);
+    font-size: var(--t-lg);
+    color: var(--dorado);
+    display: block;
+    margin-bottom: var(--e-2);
+  }
+  .pasos h3 { font-size: var(--t-md); margin-bottom: var(--e-1); }
+  .pasos p { font-size: var(--t-sm); color: var(--tinta-suave); }
+
+  .testimonios {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--e-8);
+    margin-top: var(--e-8);
+  }
+  .testimonios blockquote {
+    font-family: var(--fuente-titulo);
+    font-size: var(--t-lg);
+    line-height: 1.4;
+    border-left: 2px solid var(--dorado);
+    padding-left: var(--e-4);
+  }
+  .testimonios cite {
+    display: block;
+    margin-top: var(--e-4);
+    font-style: normal;
+    font-size: var(--t-sm);
+    font-weight: 600;
+  }
+  .testimonios cite span {
+    display: block;
+    font-weight: 400;
+    color: var(--tinta-tenue);
+    font-size: var(--t-xs);
+  }
+
+  .acordeon { margin-top: var(--e-6); max-width: 760px; }
+  .acordeon details { border-bottom: 1px solid var(--linea); padding-block: var(--e-4); }
+  .acordeon summary {
+    font-weight: 600;
+    font-size: var(--t-sm);
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    gap: var(--e-4);
+  }
+  .acordeon summary::-webkit-details-marker { display: none; }
+  .acordeon summary::after {
+    content: '+';
+    color: var(--dorado);
+    font-size: 1.3em;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .acordeon details[open] summary::after { content: '−'; }
+  .acordeon details p { margin-top: var(--e-3); font-size: var(--t-sm); color: var(--tinta-suave); }
+
+  @media (max-width: 860px) {
+    .portada { padding-block: var(--e-16) var(--e-12); }
+    .portada__in { grid-template-columns: 1fr; gap: var(--e-8); }
+    .hechos { border-left: none; border-top: 2px solid var(--dorado); padding-left: 0; padding-top: var(--e-4); }
+  }
+</style>
