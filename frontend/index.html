@@ -177,10 +177,21 @@ const WA_313=['traslado-eps','traslado-pension','traslado-arl','afiliacion-empre
 const N313='573134572362',N320='573204060607';
 function gW(msg,slug){
 const n=(slug&&WA_313.includes(slug))?N313:N320;
-return'https://wa.me/'+n+'?text='+encodeURIComponent(msg||'Hola, quiero asesoría en seguridad social');
+// El codigo viaja dentro del mensaje: es lo que permite atribuir la
+// conversacion entrante a la campana y la pagina que la originaron.
+const texto=(msg||'Hola, quiero asesoría en seguridad social')+' ['+codigoAtribucion+']';
+return'https://wa.me/'+n+'?text='+encodeURIComponent(texto);
 }
 const UP=new URLSearchParams(location.search);
 const UTM={source:UP.get('utm_source')||'directo',campaign:UP.get('utm_campaign')||''};
+// Codigo corto de atribucion: permite ligar una conversacion de WhatsApp
+// entrante con la campana y la pagina que la originaron.
+const codigoAtribucion=(UTM.source.slice(0,3)+Date.now().toString(36).slice(-4)).toUpperCase();
+function registrarEvento(tipo,detalle){
+const cuerpo=JSON.stringify({tipo:tipo,detalle:detalle||'',pagina:location.pathname,utm_source:UTM.source,utm_campaign:UTM.campaign,codigo:codigoAtribucion});
+// sendBeacon sobrevive a la navegacion; fetch con keepalive es el respaldo.
+if(navigator.sendBeacon){navigator.sendBeacon(API+'/evento',new Blob([cuerpo],{type:'application/json'}))}
+else{fetch(API+'/evento',{method:'POST',headers:{'Content-Type':'application/json'},body:cuerpo,keepalive:true}).catch(function(){})}}
 document.getElementById('yr').textContent=new Date().getFullYear();
 window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('scr',scrollY>20));
 document.getElementById('ham').addEventListener('click',()=>document.getElementById('navLk').classList.toggle('open'));
@@ -196,7 +207,7 @@ document.getElementById('promoX').addEventListener('click',()=>cM('promoPop'));
 document.getElementById('promoPop').addEventListener('click',e=>{if(e.target===e.currentTarget)cM('promoPop')});
 // Generic WA links go to 320 (oficial)
 ['hero-wa','ct-wa','wa-fl','f-wa'].forEach(id=>{
-document.getElementById(id).addEventListener('click',function(ev){ev.preventDefault();window.open(gW(),'_blank')})});
+document.getElementById(id).addEventListener('click',function(ev){ev.preventDefault();registrarEvento('clic_whatsapp',id);window.open(gW(),'_blank')})});
 
 async function loadData(){try{const r=await fetch(API+'/getAllData');const d=await r.json();render(d)}catch(e){console.error(e)}}
 

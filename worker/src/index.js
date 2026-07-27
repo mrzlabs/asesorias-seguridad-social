@@ -73,6 +73,20 @@
         });
       }
 
+      if (url.pathname === '/api/evento' && request.method === 'POST') {
+        const body = await request.text();
+        // Se reenvia sin bloquear la respuesta: la medicion nunca debe
+        // retrasar la navegacion del usuario.
+        ctx.waitUntil(
+          fetch(gasUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'evento', payload: body }),
+          }).catch(() => {})
+        );
+        return new Response(null, { status: 204, headers: corsHeaders });
+      }
+
       return new Response(JSON.stringify({ error: 'route not found' }), {
         status: 404,
         headers: { 'Content-Type': 'application/json', ...corsHeaders },
