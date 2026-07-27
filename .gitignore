@@ -8,3 +8,10 @@
 .idea/
 backend/.clasp.json
 .playwright-mcp/
+
+# Capturas temporales de verificacion
+/nueva-*.png
+/contacto.png
+/form.png
+/home.png
+/servicio.png
