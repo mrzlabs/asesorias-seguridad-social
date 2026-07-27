@@ -1,4 +1,5 @@
 ---
+import '../estilos/fuentes.css';
 import '../estilos/tokens.css';
 import '../estilos/base.css';
 import Cabecera from '../componentes/Cabecera.astro';
@@ -32,6 +33,8 @@ const imagen = new URL('/og-image.png', Astro.site).href;
   <meta name="twitter:image" content={imagen} />
 
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="preload" href="/fuentes/inter-var.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fuentes/fraunces-600.woff2" as="font" type="font/woff2" crossorigin />
 
   {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
 </head>
