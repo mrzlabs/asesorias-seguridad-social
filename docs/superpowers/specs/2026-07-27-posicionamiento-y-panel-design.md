@@ -217,6 +217,10 @@ de caja de compensación.
 Salidas: IBC calculado, aporte a salud, aporte a pensión, aporte a ARL, aporte a CCF, fondo de
 solidaridad pensional cuando aplique, y total mensual. Desglosado línea por línea.
 
+La tasa de caja de compensación **depende del tipo de vinculación**: 2% para el independiente que
+se afilia de forma voluntaria, 4% para el empleador sobre nómina. Son dos parámetros distintos y
+confundirlos duplica el valor mostrado al independiente.
+
 **Todos los parámetros de cálculo viven en la tabla `parametros` de la base de datos y son
 editables desde el panel. Ninguno se escribe en el código.** Los valores cambian cada enero con el
 SMLMV y con reformas normativas; hardcodearlos garantiza que la herramienta mienta al año
@@ -230,7 +234,8 @@ siguiente. Valores iniciales a cargar y verificar contra normativa vigente antes
 | `ibc_maximo_smlmv` | 25 |
 | `tasa_salud` | 12.5% |
 | `tasa_pension` | 16% |
-| `tasa_ccf` | 4% |
+| `tasa_ccf_independiente` | 2% (afiliación voluntaria) |
+| `tasa_ccf_empleador` | 4% (sobre nómina) |
 | `arl_clase_1` … `arl_clase_5` | Tarifas por clase de riesgo vigentes |
 | `fsp_umbral_smlmv` / `fsp_tasas` | Umbral y escala del Fondo de Solidaridad Pensional |
 

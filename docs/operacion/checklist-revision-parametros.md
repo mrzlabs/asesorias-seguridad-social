@@ -9,7 +9,8 @@ está escrito en el código.
 - [ ] Actualizar `smlmv` al valor vigente del año
 - [ ] Verificar `tasa_salud` (12.5%) contra normativa vigente
 - [ ] Verificar `tasa_pension` (16%) contra normativa vigente
-- [ ] Verificar `tasa_ccf` (4%)
+- [ ] Verificar `tasa_ccf_independiente` (2%, afiliación voluntaria)
+- [ ] Verificar `tasa_ccf_empleador` (4%, sobre nómina)
 - [ ] Verificar tarifas `arl_clase_1` a `arl_clase_5`
 - [ ] Verificar umbral y escala del Fondo de Solidaridad Pensional
 - [ ] Verificar `ibc_porcentaje_contratista` (40%) y topes (1 a 25 SMLMV)
