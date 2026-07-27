@@ -1,36 +1,69 @@
-﻿# asesorias-seguridad-social
+# Asesorías Seguridad Social SAS
 
-Landing dinamica con backend en Apps Script y frontend estatico en Cloudflare Pages.
+Sitio y plataforma de gestión de [asesoriasas.com](https://asesoriasas.com).
+Afiliaciones a EPS, ARL, pensión y caja de compensación en Colombia.
+
+## Estado
+
+En migración. El sitio en producción es HTML estático; se está migrando a Astro
+con base de datos propia y panel de gestión.
+Ver [el spec de diseño](docs/superpowers/specs/2026-07-27-posicionamiento-y-panel-design.md).
 
 ## Arquitectura
 
-- Frontend: HTML estatico desplegado en Cloudflare Pages
-- Backend: Apps Script Web App como API (modo getAllData)
-- Datos: Google Sheets como fuente de contenido y leads
-- Deploy backend: clasp push manual o GitHub Actions
-- Deploy frontend: push a main, Cloudflare Pages auto deploy
+```
+Usuario -> Cloudflare Pages (frontend/)
+                |
+                v
+        Cloudflare Worker (worker/)
+                |
+                v
+        Apps Script -> Google Sheets   [legado, se retira en Fase 2]
+```
+
+Detalle en [docs/arquitectura.md](docs/arquitectura.md).
 
 ## Estructura
 
-- backend/ codigo Apps Script
-- frontend/ HTML estatico Cloudflare Pages
-- docs/ documentacion PHVA dual y schema de Sheets
+| Carpeta | Contenido |
+|---|---|
+| `frontend/` | Sitio estático desplegado en Cloudflare Pages |
+| `worker/` | API en Cloudflare Workers |
+| `backend/` | Apps Script (legado) |
+| `scripts/` | Utilidades de desarrollo |
+| `tests/` | Validaciones automatizadas |
+| `docs/adr/` | Decisiones técnicas y por qué se tomaron |
+| `docs/operacion/` | Runbooks y checklists del negocio |
+| `docs/superpowers/` | Especificaciones y planes de implementación |
 
-## Setup
+## Desarrollo
 
-1. Backend: cp backend/.clasp.json.example backend/.clasp.json
-2. Editar scriptId en backend/.clasp.json
-3. cd backend; clasp push
-4. Configurar Script Properties: SHEET_ID
-5. Frontend: editar URL de Web App en frontend/index.html
-6. Push a main, deploy automatico
+Requiere Node.js 20 o superior.
 
-## Documentacion
+```bash
+npm test      # Validaciones de SEO técnico
+npm run mock  # Servidor de datos simulado en localhost:3001
+```
 
-- docs/PHVA-doomies.md
-- docs/PHVA-tecnica.md
-- docs/arquitectura.md
-- docs/sheets-schema.md
+Con el mock corriendo, abrir `frontend/index.html` desde `localhost` para que use
+la API local en vez de la de producción.
+
+## Despliegue
+
+`frontend/` se despliega solo al hacer push a `main`. El Worker y Apps Script son
+manuales. Procedimiento completo y rollback en
+[docs/operacion/runbook-despliegue.md](docs/operacion/runbook-despliegue.md).
+
+## Documentación
+
+| Documento | Contenido |
+|---|---|
+| [Arquitectura](docs/arquitectura.md) | Capas, componentes y flujo de despliegue |
+| [Esquema de Sheets](docs/sheets-schema.md) | Hojas de cálculo (legado) |
+| [PHVA técnica](docs/PHVA-tecnica.md) | Ciclo de mejora técnica |
+| [PHVA negocio](docs/PHVA-doomies.md) | Ciclo de mejora en lenguaje de negocio |
+| [CONTRIBUTING](CONTRIBUTING.md) | Convenciones de commit y de ADR |
+| [CHANGELOG](CHANGELOG.md) | Historial de cambios |
 
 ## Licencia
 

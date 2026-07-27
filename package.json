@@ -1,0 +1,15 @@
+{
+  "name": "asesorias-seguridad-social",
+  "version": "0.1.0",
+  "description": "Sitio y plataforma de Asesorías Seguridad Social SAS",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/",
+    "mock": "node scripts/mock-server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}
