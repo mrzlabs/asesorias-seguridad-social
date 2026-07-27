@@ -4,19 +4,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Seguridad Social SAS</title>
+<title>Afiliación EPS, ARL y Pensión en Colombia | Asesorías SAS</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%231e3a8a'/%3E%3Ctext x='50' y='62' font-family='Inter,system-ui,sans-serif' font-size='42' font-weight='800' fill='white' text-anchor='middle'%3ESS%3C/text%3E%3C/svg%3E" />
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%231e3a8a'/%3E%3Ctext x='50' y='62' font-family='Inter,system-ui,sans-serif' font-size='42' font-weight='800' fill='white' text-anchor='middle'%3ESS%3C/text%3E%3C/svg%3E" />
 <meta name="theme-color" content="#1e3a8a" />
-<meta property="og:title" content="Asesorias Seguridad Social SAS" />
-<meta property="og:description" content="Tramites de salud, pension, ARL y cesantias en Colombia. Asesoria personalizada." />
-<meta property="og:type" content="website" />
-<meta property="og:url" content="https://asesoriasas.com" />
-<meta name="description" content="Tramites de salud, pension, ARL y cesantias en Colombia. Asesoria personalizada." />
-<meta name="description" content="Afiliaciones EPS, ARL, Pensión, Caja de Compensación, Pólizas, Seguros, SOAT, Medicina Prepagada y más. Asesoría integral en seguridad social para Colombia.">
-<meta property="og:title" content="Seguridad Social sin Errores SAS">
-<meta property="og:description" content="Gestión integral de afiliaciones y seguros en toda Colombia.">
+<meta name="description" content="Afiliación a EPS, ARL, pensión y caja de compensación para independientes y empresas en toda Colombia. Gestión 100% online en 24 horas.">
+<link rel="canonical" href="https://asesoriasas.com/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:title" content="Afiliación EPS, ARL y Pensión en Colombia | Asesorías SAS">
+<meta property="og:description" content="Afiliación a EPS, ARL, pensión y caja de compensación para independientes y empresas en toda Colombia. Gestión 100% online en 24 horas.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://asesoriasas.com/">
+<meta property="og:image" content="https://asesoriasas.com/og-image.png">
+<meta property="og:locale" content="es_CO">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Afiliación EPS, ARL y Pensión en Colombia | Asesorías SAS">
+<meta name="twitter:description" content="Afiliación a EPS, ARL, pensión y caja de compensación para independientes y empresas en toda Colombia.">
+<meta name="twitter:image" content="https://asesoriasas.com/og-image.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -92,7 +96,9 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}body{font-family:var(--fb);c
 <div class="modal-ov" id="promoPop"><div class="modal-bx"><button class="modal-x" id="promoX">&times;</button><img class="modal-img" id="ppImg" src="" alt=""><div class="modal-bd"><h3 id="ppTit"></h3><a id="ppWa" href="#" target="_blank" class="btn btn-w" style="width:100%;justify-content:center">Quiero esta promoción</a></div></div></div>
 
 <script>
-const API='https://asesorias-api-proxy.andresmartinezr2204.workers.dev/api';
+// Detectar ambiente: local o producción
+const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+const API = isLocal ? 'http://localhost:3001/api' : 'https://asesorias-api-proxy.andresmartinezr2204.workers.dev/api';
 // Slugs que van al 313
 const WA_313=['traslado-eps','traslado-pension','traslado-arl','afiliacion-empresas','soat'];
 const N313='573134572362',N320='573204060607';
@@ -124,7 +130,6 @@ async function loadData(){try{const r=await fetch(API+'/getAllData');const d=awa
 function render(d){
 const c=d.config||{};
 document.getElementById('nav-emp').textContent=c.empresa_nombre||'';
-document.title=c.empresa_nombre||'Seguridad Social';
 document.getElementById('i-em').textContent=c.email_contacto||'';
 document.getElementById('i-hr').textContent=c.horario_atencion||'';
 document.getElementById('f-emp').textContent=c.empresa_nombre||'';
