@@ -62,6 +62,79 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}body{font-family:var(--fb);c
 @media(max-width:768px){.nav-lk,.nav-ct .btn{display:none}.ham{display:flex}.nav-lk.open{display:flex;flex-direction:column;position:absolute;top:68px;left:0;right:0;background:var(--wh);padding:20px;border-bottom:1px solid var(--bdr);box-shadow:var(--sh);gap:14px;z-index:101}.hero{padding:56px 0 48px}.hero h1{font-size:1.7rem}.hero-st{flex-wrap:wrap;gap:16px}.sec{padding:48px 0}.f-row{grid-template-columns:1fr}.ftr-g{grid-template-columns:1fr;gap:20px}.stp-g{grid-template-columns:1fr 1fr}.trust-in{gap:14px;font-size:.72rem}.svc-c{flex:0 0 260px}}
 @media(max-width:400px){.hero h1{font-size:1.5rem}.hero-d{font-size:.88rem}.btn{padding:11px 20px;font-size:.82rem}.stp-g{grid-template-columns:1fr}.svc-c{flex:0 0 240px}}
 </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "LocalBusiness",
+      "@id": "https://asesoriasas.com/#organizacion",
+      "name": "Asesorías Seguridad Social SAS",
+      "url": "https://asesoriasas.com/",
+      "description": "Afiliación a EPS, ARL, pensión y caja de compensación para independientes y empresas en Colombia.",
+      "telephone": "+573204060607",
+      "priceRange": "$$",
+      "areaServed": { "@type": "Country", "name": "Colombia" },
+      "address": { "@type": "PostalAddress", "addressCountry": "CO" },
+      "sameAs": ["https://www.facebook.com/Colombiasesorias"]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://asesoriasas.com/#sitio",
+      "url": "https://asesoriasas.com/",
+      "name": "Asesorías Seguridad Social SAS",
+      "inLanguage": "es-CO",
+      "publisher": { "@id": "https://asesoriasas.com/#organizacion" }
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://asesoriasas.com/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "¿Es obligatorio pagar seguridad social si soy independiente?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Sí. Según el artículo 3 de la Ley 797 de 2003 y el Decreto 1273 de 2018, todo trabajador independiente con ingresos iguales o superiores a un salario mínimo mensual legal vigente debe cotizar a salud, pensión y riesgos laborales. El incumplimiento puede generar sanciones y pérdida de cobertura en salud."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Sobre qué base debo cotizar como independiente?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "El Ingreso Base de Cotización mínimo es el 40% de tus ingresos mensuales, y no puede ser inferior a un salario mínimo mensual legal vigente según el artículo 135 de la Ley 1753 de 2015. Si tus ingresos son variables, debes calcular el 40% sobre el promedio mensual."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Qué porcentajes se descuentan en la planilla PILA?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Para independientes: salud 12.5%, pensión 16%, ARL entre 0.522% y 6.960% según nivel de riesgo. Total mínimo aproximado 29% sobre el IBC. Si estás afiliado a caja de compensación se suma un 2% adicional de forma voluntaria."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Cada cuánto debo pagar mi planilla PILA?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "La planilla se paga mensualmente. Según el Decreto 1990 de 2016, los independientes deben pagar entre el 1 y el último día del mes correspondiente al periodo de cotización. El pago extemporáneo genera intereses de mora y puede causar suspensión de servicios de salud."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Qué pasa si dejo de pagar la planilla varios meses?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Después de un mes sin pago la EPS puede suspender tus servicios de salud, conservando solo atención de urgencias. Se acumula mora con intereses. Además pierdes semanas cotizadas a pensión por los periodos no pagados y la cobertura de ARL se inactiva, dejándote sin protección laboral."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
 </head>
 <body>
 <nav class="nav" id="nav"><div class="ctn nav-in"><a href="#" class="nav-br"><span class="ic">&#10003;</span><span id="nav-emp">Cargando...</span></a><ul class="nav-lk" id="navLk"><li><a href="#servicios">Servicios</a></li><li><a href="#proceso">Proceso</a></li><li><a href="#flyers">Promociones</a></li><li><a href="#faq">Preguntas</a></li><li><a href="#contacto">Contacto</a></li></ul><div class="nav-ct"><a href="#contacto" class="btn btn-a btn-sm">Cotizar ahora</a></div><button class="ham" id="ham" aria-label="Menú"><span></span><span></span><span></span></button></div></nav>
