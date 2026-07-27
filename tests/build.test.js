@@ -109,3 +109,43 @@ describe('Sitio compilado', () => {
     assert.match(html, /Saltar al contenido/);
   });
 });
+
+describe('Captación de leads', () => {
+  test('la home tiene el formulario de leads', async () => {
+    const html = await leer('index.html');
+    assert.match(html, /id="formLead"/);
+    assert.match(html, /name="nombre"/);
+    assert.match(html, /name="telefono"/);
+  });
+
+  test('cada página de servicio tiene formulario', async () => {
+    for (const slug of SLUGS) {
+      const html = await leer(`servicios/${slug}/index.html`);
+      assert.match(html, /id="formLead"/, `${slug} no tiene formulario`);
+    }
+  });
+
+  test('el formulario preselecciona el servicio de la página', async () => {
+    const html = await leer('servicios/traslado-eps/index.html');
+    assert.match(html, /<option value="traslado-eps"[^>]*selected/);
+  });
+
+  test('el formulario mantiene la trampa antibot', async () => {
+    const html = await leer('index.html');
+    assert.match(html, /name="honeypot"/);
+  });
+
+  test('todos los campos tienen etiqueta asociada', async () => {
+    const html = await leer('index.html');
+    for (const id of ['lead-nombre', 'lead-telefono', 'lead-email', 'lead-servicio']) {
+      assert.match(html, new RegExp(`for="${id}"`), `falta label para ${id}`);
+      assert.match(html, new RegExp(`id="${id}"`), `falta el campo ${id}`);
+    }
+  });
+
+  test('el mensaje de estado se anuncia a lectores de pantalla', async () => {
+    const html = await leer('index.html');
+    assert.match(html, /id="leadEstado"[^>]*role="status"/);
+    assert.match(html, /aria-live="polite"/);
+  });
+});

@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import BotonWhatsApp from '../componentes/BotonWhatsApp.astro';
+import FormularioLead from '../componentes/FormularioLead.astro';
 import { SERVICIOS } from '../datos/servicios.js';
 import { obtenerContenido } from '../datos/api.js';
 
@@ -152,6 +153,22 @@ const PASOS = [
       </div>
     </section>
   )}
+
+  <section class="seccion contacto" id="contacto">
+    <div class="contenedor contacto__in">
+      <div>
+        <h2>Solicita tu asesoría</h2>
+        <p class="contacto__texto">
+          Déjanos tus datos y te contactamos en menos de 24 horas hábiles.
+          Si prefieres, escríbenos directo por WhatsApp.
+        </p>
+        <BotonWhatsApp variante="contorno" mensaje="Hola, quiero asesoría en seguridad social">
+          Escribir por WhatsApp
+        </BotonWhatsApp>
+      </div>
+      <FormularioLead />
+    </div>
+  </section>
 </Base>
 
 <style>
@@ -281,7 +298,22 @@ const PASOS = [
   .acordeon details[open] summary::after { content: '−'; }
   .acordeon details p { margin-top: var(--e-3); font-size: var(--t-sm); color: var(--tinta-suave); }
 
+  .contacto { background: var(--azul-tinta); color: var(--papel); }
+  .contacto__in {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap: var(--e-12);
+    align-items: start;
+  }
+  .contacto__texto {
+    font-size: var(--t-md);
+    color: rgba(245, 241, 232, .76);
+    max-width: 40ch;
+    margin-block: var(--e-4) var(--e-6);
+  }
+
   @media (max-width: 860px) {
+    .contacto__in { grid-template-columns: 1fr; gap: var(--e-8); }
     .portada { padding-block: var(--e-16) var(--e-12); }
     .portada__in { grid-template-columns: 1fr; gap: var(--e-8); }
     .hechos { border-left: none; border-top: 2px solid var(--dorado); padding-left: 0; padding-top: var(--e-4); }

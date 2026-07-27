@@ -42,7 +42,9 @@ const anio = new Date().getFullYear();
   .pie {
     background: var(--azul-tinta);
     color: rgba(245, 241, 232, .72);
-    margin-top: var(--e-24);
+    /* Sin margen superior: el aire lo aporta el padding de la ultima
+       seccion. Un margen aqui abriria una banda clara entre el pie y
+       cualquier seccion oscura que lo preceda. */
   }
   .pie__in {
     display: grid;

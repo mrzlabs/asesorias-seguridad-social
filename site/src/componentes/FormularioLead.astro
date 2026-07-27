@@ -1,0 +1,259 @@
+---
+import { SERVICIOS } from '../datos/servicios.js';
+
+// servicioPreseleccionado: slug que llega desde una pagina de servicio.
+const { servicioPreseleccionado = '' } = Astro.props;
+---
+<form class="lead" id="formLead" novalidate>
+  <!-- Trampa antibot: invisible para personas, tentadora para scripts. -->
+  <div class="lead__trampa" aria-hidden="true">
+    <label for="lead-web">No completar</label>
+    <input type="text" id="lead-web" name="honeypot" tabindex="-1" autocomplete="off" />
+  </div>
+
+  <div class="lead__fila">
+    <div class="lead__campo">
+      <label for="lead-nombre">Nombre <span aria-hidden="true">*</span></label>
+      <input
+        type="text" id="lead-nombre" name="nombre"
+        autocomplete="name" required
+        aria-describedby="err-nombre"
+      />
+      <p class="lead__error" id="err-nombre" hidden>Escribe tu nombre completo.</p>
+    </div>
+
+    <div class="lead__campo">
+      <label for="lead-telefono">Celular <span aria-hidden="true">*</span></label>
+      <input
+        type="tel" id="lead-telefono" name="telefono"
+        inputmode="numeric" autocomplete="tel-national"
+        placeholder="3001234567" required
+        aria-describedby="err-telefono"
+      />
+      <p class="lead__error" id="err-telefono" hidden>
+        Debe ser un celular colombiano de 10 dígitos que empieza por 3.
+      </p>
+    </div>
+  </div>
+
+  <div class="lead__fila">
+    <div class="lead__campo">
+      <label for="lead-email">Correo <span class="lead__opt">(opcional)</span></label>
+      <input
+        type="email" id="lead-email" name="email"
+        autocomplete="email" aria-describedby="err-email"
+      />
+      <p class="lead__error" id="err-email" hidden>Revisa el correo, no parece válido.</p>
+    </div>
+
+    <div class="lead__campo">
+      <label for="lead-ciudad">Ciudad <span class="lead__opt">(opcional)</span></label>
+      <input type="text" id="lead-ciudad" name="ciudad" autocomplete="address-level2" />
+    </div>
+  </div>
+
+  <div class="lead__campo">
+    <label for="lead-servicio">¿Qué necesitas?</label>
+    <select id="lead-servicio" name="servicio_interes">
+      <option value="">Selecciona un servicio</option>
+      {SERVICIOS.map((s) => (
+        <option value={s.slug} selected={s.slug === servicioPreseleccionado}>
+          {s.titulo}
+        </option>
+      ))}
+    </select>
+  </div>
+
+  <div class="lead__campo">
+    <label for="lead-mensaje">Cuéntanos tu caso <span class="lead__opt">(opcional)</span></label>
+    <textarea id="lead-mensaje" name="mensaje" rows="3"></textarea>
+  </div>
+
+  <button type="submit" class="boton boton--principal lead__enviar" id="leadEnviar">
+    Solicitar asesoría
+  </button>
+
+  <p class="lead__estado" id="leadEstado" role="status" aria-live="polite"></p>
+
+  <p class="lead__nota">
+    Te contactamos en menos de 24 horas hábiles. No compartimos tus datos con terceros.
+  </p>
+</form>
+
+<script>
+  const API = 'https://asesorias-api-proxy.andresmartinezr2204.workers.dev/api';
+  const form = document.getElementById('formLead');
+
+  if (form) {
+    const params = new URLSearchParams(location.search);
+    const utm = {
+      source: params.get('utm_source') || 'directo',
+      campaign: params.get('utm_campaign') || '',
+    };
+
+    const estado = document.getElementById('leadEstado');
+    const boton = document.getElementById('leadEnviar');
+
+    function marcarError(campo, hayError) {
+      const input = form.elements[campo];
+      const aviso = document.getElementById('err-' + campo);
+      input.setAttribute('aria-invalid', hayError ? 'true' : 'false');
+      input.classList.toggle('es-error', hayError);
+      if (aviso) aviso.hidden = !hayError;
+      return !hayError;
+    }
+
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+
+      // Si la trampa trae contenido, es un bot: se finge exito y no se envia.
+      if (form.elements.honeypot.value) return;
+
+      const nombre = form.elements.nombre.value.trim();
+      const telefono = form.elements.telefono.value.replace(/\D/g, '');
+      const email = form.elements.email.value.trim();
+
+      let valido = true;
+      valido = marcarError('nombre', nombre.length < 2) && valido;
+      valido = marcarError('telefono', !/^3\d{9}$/.test(telefono)) && valido;
+      valido = marcarError('email', email !== '' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) && valido;
+
+      if (!valido) {
+        estado.textContent = 'Revisa los campos marcados.';
+        estado.className = 'lead__estado es-error';
+        // Lleva el foco al primer campo con error: sin esto, quien navega
+        // con teclado o lector de pantalla no sabe que fallo.
+        form.querySelector('.es-error')?.focus();
+        return;
+      }
+
+      boton.disabled = true;
+      boton.textContent = 'Enviando...';
+      estado.textContent = '';
+      estado.className = 'lead__estado';
+
+      try {
+        const r = await fetch(API + '/lead', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nombre,
+            telefono,
+            email,
+            ciudad: form.elements.ciudad.value.trim(),
+            servicio_interes: form.elements.servicio_interes.value,
+            mensaje: form.elements.mensaje.value.trim(),
+            utm_source: utm.source,
+            utm_campaign: utm.campaign,
+            _userAgent: navigator.userAgent,
+            _ip: '',
+          }),
+        });
+        const rs = await r.json();
+
+        if (rs.ok) {
+          estado.textContent = rs.mensaje || 'Recibido. Te contactamos muy pronto.';
+          estado.className = 'lead__estado es-exito';
+          form.reset();
+        } else {
+          estado.textContent = rs.error || 'No pudimos enviar la solicitud.';
+          estado.className = 'lead__estado es-error';
+        }
+      } catch {
+        estado.textContent =
+          'No hay conexión con el servidor. Escríbenos por WhatsApp y te atendemos igual.';
+        estado.className = 'lead__estado es-error';
+      }
+
+      boton.disabled = false;
+      boton.textContent = 'Solicitar asesoría';
+    });
+  }
+</script>
+
+<style>
+  .lead {
+    background: var(--papel-puro);
+    border: 1px solid var(--linea);
+    border-radius: var(--radio-lg);
+    padding: var(--e-8);
+    display: grid;
+    gap: var(--e-4);
+    max-width: 620px;
+  }
+
+  .lead__trampa {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .lead__fila {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--e-4);
+  }
+
+  .lead__campo { display: grid; gap: var(--e-1); }
+
+  .lead__campo label {
+    font-size: var(--t-xs);
+    font-weight: 600;
+    letter-spacing: .01em;
+  }
+  .lead__opt { font-weight: 400; color: var(--tinta-tenue); }
+
+  .lead input,
+  .lead select,
+  .lead textarea {
+    font-family: var(--fuente-texto);
+    font-size: var(--t-sm);
+    color: var(--tinta);
+    background: var(--papel);
+    border: 1px solid var(--linea);
+    border-radius: var(--radio);
+    padding: var(--e-3);
+    width: 100%;
+    transition: border-color .16s ease;
+  }
+  .lead input:hover,
+  .lead select:hover,
+  .lead textarea:hover { border-color: var(--tinta-tenue); }
+
+  .lead input:focus,
+  .lead select:focus,
+  .lead textarea:focus {
+    border-color: var(--azul-medio);
+    background: var(--papel-puro);
+  }
+
+  .lead .es-error { border-color: var(--alerta); }
+
+  .lead textarea { resize: vertical; min-height: 84px; }
+
+  .lead__error {
+    font-size: var(--t-xs);
+    color: var(--alerta);
+    margin: 0;
+  }
+
+  .lead__enviar { justify-self: start; margin-top: var(--e-2); }
+  .lead__enviar:disabled { opacity: .6; cursor: not-allowed; }
+
+  .lead__estado { font-size: var(--t-sm); font-weight: 600; margin: 0; }
+  .lead__estado.es-exito { color: var(--exito); }
+  .lead__estado.es-error { color: var(--alerta); }
+
+  .lead__nota {
+    font-size: var(--t-xs);
+    color: var(--tinta-tenue);
+    margin: 0;
+  }
+
+  @media (max-width: 560px) {
+    .lead { padding: var(--e-6); }
+    .lead__fila { grid-template-columns: 1fr; }
+  }
+</style>
