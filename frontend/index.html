@@ -166,7 +166,6 @@ html{scroll-behavior:smooth;scroll-padding-top:72px}body{font-family:var(--fb);c
 <div class="waf"><div class="waf-tag" id="wafTag">Chatea con nosotros</div><a id="wa-fl" href="#" class="waf-btn" aria-label="WhatsApp"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.14.562 4.148 1.543 5.89L0 24l6.305-1.654A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75c-1.994 0-3.9-.535-5.573-1.544l-.4-.237-4.14 1.086 1.104-4.032-.26-.413A9.72 9.72 0 012.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75z"/></svg></a></div>
 
 <div class="modal-ov" id="flyModal"><div class="modal-bx"><button class="modal-x" id="flyX">&times;</button><img class="modal-img" id="fmImg" src="" alt=""><div class="modal-bd"><h3 id="fmTit"></h3><p id="fmDesc"></p><a id="fmWa" href="#" target="_blank" class="btn btn-w" style="width:100%;justify-content:center">Tomar esta promoción</a></div></div></div>
-<div class="modal-ov" id="promoPop"><div class="modal-bx"><button class="modal-x" id="promoX">&times;</button><img class="modal-img" id="ppImg" src="" alt=""><div class="modal-bd"><h3 id="ppTit"></h3><a id="ppWa" href="#" target="_blank" class="btn btn-w" style="width:100%;justify-content:center">Quiero esta promoción</a></div></div></div>
 
 <script>
 // Detectar ambiente: local o producción
@@ -203,13 +202,19 @@ function esc(s){const d=document.createElement('div');d.textContent=s||'';return
 function cM(id){document.getElementById(id).classList.remove('act')}
 document.getElementById('flyX').addEventListener('click',()=>cM('flyModal'));
 document.getElementById('flyModal').addEventListener('click',e=>{if(e.target===e.currentTarget)cM('flyModal')});
-document.getElementById('promoX').addEventListener('click',()=>cM('promoPop'));
-document.getElementById('promoPop').addEventListener('click',e=>{if(e.target===e.currentTarget)cM('promoPop')});
 // Generic WA links go to 320 (oficial)
 ['hero-wa','ct-wa','wa-fl','f-wa'].forEach(id=>{
 document.getElementById(id).addEventListener('click',function(ev){ev.preventDefault();registrarEvento('clic_whatsapp',id);window.open(gW(),'_blank')})});
 
-async function loadData(){try{const r=await fetch(API+'/getAllData');const d=await r.json();render(d)}catch(e){console.error(e)}}
+// Si la API no responde, la pagina se quedaba indefinidamente en
+// "Cargando..." y sin ninguna via de contacto visible.
+function mostrarErrorCarga(){
+const faq=document.getElementById('faqList');
+if(faq){faq.innerHTML='<p style="text-align:center;color:var(--tx2);font-size:.9rem">No pudimos cargar el contenido en este momento. Escríbenos por WhatsApp y te atendemos de inmediato.</p>'}
+const nav=document.getElementById('nav-emp');
+if(nav)nav.textContent='Asesorías Seguridad Social';
+}
+async function loadData(){try{const r=await fetch(API+'/getAllData');if(!r.ok)throw new Error('respuesta '+r.status);render(await r.json())}catch(e){console.error(e);mostrarErrorCarga()}}
 
 function render(d){
 const c=d.config||{};
@@ -238,7 +243,7 @@ if(fl.length){
 document.getElementById('flyers').classList.remove('hidden-sec');
 document.getElementById('flyGrid').innerHTML=fl.map((f,i)=>'<div class="fly-c" data-i="'+i+'"><img src="https://drive.google.com/thumbnail?id='+f.drive_id+'&sz=w800" alt="'+esc(f.titulo)+'" loading="lazy" onerror="this.parentElement.style.display=\'none\'"><div class="fly-b"><h3>'+esc(f.titulo)+'</h3><p>'+esc(f.descripcion)+'</p></div></div>').join('');
 document.querySelectorAll('.fly-c').forEach(c=>c.addEventListener('click',()=>{const f=fl[parseInt(c.dataset.i)];if(!f)return;document.getElementById('fmImg').src='https://drive.google.com/thumbnail?id='+f.drive_id+'&sz=w1200';document.getElementById('fmTit').textContent=f.titulo;document.getElementById('fmDesc').textContent=f.descripcion||'';document.getElementById('fmWa').href=gW('Hola, me interesa la promoción: '+f.titulo);document.getElementById('flyModal').classList.add('act')}));
-if(!sessionStorage.getItem('pp')){setTimeout(()=>{const f=fl[0];document.getElementById('ppImg').src='https://drive.google.com/thumbnail?id='+f.drive_id+'&sz=w900';document.getElementById('ppTit').textContent=f.titulo;document.getElementById('ppWa').href=gW('Hola, vi la promoción: '+f.titulo);document.getElementById('promoPop').classList.add('act');sessionStorage.setItem('pp','1')},2500)}}
+}
 
 // Videos
 const vd=d.videos||[];
