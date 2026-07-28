@@ -3,6 +3,10 @@
 // 'leads/5', 'servicios', 'servicios/afiliacion-eps', 'resumen', 'publicar').
 import { listarLeads, obtenerLead, actualizarLead, resumenLeads } from './leads.js';
 import { listar, crear, editar, eliminar, publicar } from './contenido.js';
+import { RECURSOS } from './recursos.js';
+
+// Se deriva de RECURSOS para que un recurso nuevo no requiera tocar el ruteo.
+const RE_RECURSO = new RegExp(`^(${Object.keys(RECURSOS).join('|')})(?:\\/(.+))?$`);
 
 export async function manejarAdmin(sub, searchParams, request, env, usuario, json) {
   const db = env.DB;
@@ -31,7 +35,7 @@ export async function manejarAdmin(sub, searchParams, request, env, usuario, jso
     }
   }
 
-  const mRec = sub.match(/^(servicios|faq|testimonios|promociones|parametros)(?:\/(.+))?$/);
+  const mRec = sub.match(RE_RECURSO);
   if (mRec) {
     const recurso = mRec[1];
     const pk = mRec[2] ? decodeURIComponent(mRec[2]) : null;
