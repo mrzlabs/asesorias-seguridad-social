@@ -1,45 +1,45 @@
-// Utilidades compartidas por las vistas del panel: gate de clave (sessionStorage,
-// Bearer) y fetch autenticado a la API admin. Cloudflare Access es el candado
-// exterior; esta clave protege la API en otro dominio.
+// Cliente compartido del panel. Acceso keyless: la API se llama same-origin a
+// /admin/api/*, protegida por Cloudflare Access (la cookie viaja sola). No hay
+// clave. Si la sesión de Access caduca, se avisa y se pide recargar.
+
+export const API = '/admin/api';
 
 export function esc(s) {
   return String(s ?? '').replace(/[&<>"']/g, (c) =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
-/**
- * Monta el gate y devuelve `req` para hablar con la API.
- * @param {(req: Function) => Promise<void>} onCargar carga inicial de datos.
- */
-export function crearPanel(onCargar) {
-  const API = document.body.dataset.api;
-  const $ = (id) => document.getElementById(id);
-  const tok = () => sessionStorage.getItem('panel_token');
-  const mostrarGate = (msg = '') => {
-    $('gate').hidden = false; $('app').hidden = true;
-    if ($('gate-error')) $('gate-error').textContent = msg;
-  };
-  const mostrarApp = () => { $('gate').hidden = true; $('app').hidden = false; };
+export function toast(msg) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('ver');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('ver'), 2600);
+}
 
-  async function req(ruta, opts = {}) {
-    const r = await fetch(API + ruta, {
+export function bannerError(msg) {
+  const b = document.getElementById('banner');
+  if (b) { b.className = 'err'; b.textContent = msg; }
+}
+
+export async function req(ruta, opts = {}) {
+  let r;
+  try {
+    r = await fetch(API + ruta, {
+      redirect: 'manual',
       ...opts,
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${tok()}`, ...(opts.headers || {}) },
+      headers: { 'Content-Type': 'application/json', ...(opts.headers || {}) },
     });
-    if (r.status === 401) {
-      sessionStorage.removeItem('panel_token');
-      mostrarGate('Clave incorrecta o sesión expirada.');
-      throw new Error('401');
-    }
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    return r.status === 204 ? null : r.json();
+  } catch (e) {
+    bannerError('No hay conexión con el servidor. Revisa tu internet e inténtalo de nuevo.');
+    throw e;
   }
-
-  $('entrar')?.addEventListener('click', async () => {
-    sessionStorage.setItem('panel_token', $('clave').value.trim());
-    try { await onCargar(req); mostrarApp(); } catch { /* gate ya mostrado o error */ }
-  });
-
-  if (tok()) onCargar(req).then(mostrarApp).catch(() => {}); else mostrarGate();
-  return { req };
+  // Access redirige al login si la sesión caducó → respuesta opaca.
+  if (r.type === 'opaqueredirect' || r.status === 0 || r.status === 401 || r.status === 403) {
+    bannerError('Tu sesión de acceso expiró. Recarga la página para volver a iniciar sesión.');
+    throw new Error('auth');
+  }
+  if (!r.ok) throw new Error('HTTP ' + r.status);
+  return r.status === 204 ? null : r.json();
 }

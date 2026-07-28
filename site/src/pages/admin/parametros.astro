@@ -1,45 +1,22 @@
 ---
-const API = 'https://asesorias-api-proxy.andresmartinezr2204.workers.dev/api';
+import AdminLayout from '../../layouts/AdminLayout.astro';
 ---
-<!doctype html>
-<html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="robots" content="noindex, nofollow" />
-    <title>Panel · Parámetros</title>
-    <style>
-      body { font: 15px/1.5 system-ui, sans-serif; margin: 0; padding: 1.5rem; max-width: 820px; }
-      h1 { font-size: 1.4rem; }
-      a.volver { color: #1f3a5f; }
-      table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-      th, td { text-align: left; padding: .4rem .6rem; border-bottom: 1px solid #d8d2c4; vertical-align: top; }
-      input.valor { width: 100%; padding: .35rem; border: 1px solid #d8d2c4; border-radius: 5px; }
-      button { font: inherit; background: #1f3a5f; color: #fff; border: 0; border-radius: 5px; cursor: pointer; padding: .35rem .8rem; }
-      #gate { max-width: 320px; }
-      #gate label { display: block; margin: 1rem 0 .5rem; }
-      #gate input { width: 100%; padding: .5rem; border: 1px solid #d8d2c4; border-radius: 6px; }
-      .guardado { color: #1f6f3a; font-size: .85rem; }
-      [role="alert"] { color: #b00020; }
-      .nota { background: #fff8e6; border: 1px solid #e6d9a8; padding: .6rem .8rem; border-radius: 6px; margin-top: 1rem; }
-    </style>
-  </head>
-  <body data-api={API}>
-    <section id="gate" hidden>
-      <h1>Parámetros</h1>
-      <label>Clave de acceso <input id="clave" type="password" autocomplete="off" /></label>
-      <button id="entrar">Entrar</button>
-      <p id="gate-error" role="alert"></p>
-    </section>
-    <section id="app" hidden>
-      <p><a class="volver" href="/admin/">← Panel</a></p>
-      <h1>Parámetros</h1>
-      <p class="nota">Al cambiar un valor se guarda al instante en la base, pero <strong>no se ve en el sitio hasta pulsar «Publicar»</strong> en el inicio del panel (reconstruye el sitio).</p>
-      <table>
-        <thead><tr><th>Clave</th><th>Valor</th><th>Tipo</th><th></th></tr></thead>
-        <tbody id="filas"></tbody>
-      </table>
-    </section>
-    <script src="../../scripts/panel-parametros.js"></script>
-  </body>
-</html>
+<AdminLayout titulo="Parámetros" activo="parametros">
+  <div class="cabecera"><h1>Parámetros</h1></div>
+  <p class="sub">Al guardar, el valor entra a la base al instante. Para verlo en el sitio, pulsa <strong>Publicar cambios</strong> arriba (reconstruye el sitio).</p>
+  <div id="grupos"><div class="cargando">Cargando parámetros…</div></div>
+
+  <style>
+    .grupo { margin-bottom: 1.6rem; }
+    .grupo > h2 { font-family: var(--serif); font-size: 1.25rem; color: var(--navy); margin: 0 0 .2rem; }
+    .grupo > .desc { color: var(--muted); margin: 0 0 .8rem; font-size: .92rem; }
+    .param { display: grid; grid-template-columns: 1fr 200px auto; gap: .8rem; align-items: center;
+      padding: .6rem 0; border-bottom: 1px solid var(--line); }
+    .param:last-child { border-bottom: 0; }
+    .param .nom { font-weight: 600; }
+    .param .nom small { display: block; font-weight: 400; color: var(--muted); font-size: .8rem; }
+    .param .ok { color: var(--ok); font-weight: 600; }
+    @media (max-width: 620px) { .param { grid-template-columns: 1fr; } }
+  </style>
+  <script src="../../scripts/panel-parametros.js"></script>
+</AdminLayout>

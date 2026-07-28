@@ -1,49 +1,28 @@
 ---
-const API = 'https://asesorias-api-proxy.andresmartinezr2204.workers.dev/api';
+import AdminLayout from '../../layouts/AdminLayout.astro';
 ---
-<!doctype html>
-<html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="robots" content="noindex, nofollow" />
-    <title>Panel · Contenido</title>
-    <style>
-      body { font: 15px/1.5 system-ui, sans-serif; margin: 0; padding: 1.5rem; max-width: 1000px; }
-      h1 { font-size: 1.4rem; }
-      a.volver { color: #1f3a5f; }
-      #tabs { display: flex; gap: .5rem; margin: 1rem 0; flex-wrap: wrap; }
-      #tabs button { background: #eee; color: #333; }
-      #tabs button.activo { background: #1f3a5f; color: #fff; }
-      button { font: inherit; background: #1f3a5f; color: #fff; border: 0; border-radius: 5px; cursor: pointer; padding: .35rem .8rem; }
-      .item { border: 1px solid #d8d2c4; border-radius: 8px; padding: .8rem; margin-bottom: .8rem; }
-      .item label { display: block; font-size: .8rem; color: #555; margin-top: .4rem; }
-      .item input, .item textarea { width: 100%; padding: .35rem; border: 1px solid #d8d2c4; border-radius: 5px; }
-      .item textarea { min-height: 3rem; }
-      .fila-acc { display: flex; gap: .8rem; align-items: center; margin-top: .6rem; }
-      .del { background: #b00020; }
-      #gate { max-width: 320px; }
-      #gate label { display: block; margin: 1rem 0 .5rem; }
-      #gate input { width: 100%; padding: .5rem; border: 1px solid #d8d2c4; border-radius: 6px; }
-      .nota { background: #fff8e6; border: 1px solid #e6d9a8; padding: .6rem .8rem; border-radius: 6px; margin: 1rem 0; }
-      .guardado { color: #1f6f3a; font-size: .85rem; }
-      [role="alert"] { color: #b00020; }
-    </style>
-  </head>
-  <body data-api={API}>
-    <section id="gate" hidden>
-      <h1>Contenido</h1>
-      <label>Clave de acceso <input id="clave" type="password" autocomplete="off" /></label>
-      <button id="entrar">Entrar</button>
-      <p id="gate-error" role="alert"></p>
-    </section>
-    <section id="app" hidden>
-      <p><a class="volver" href="/admin/">← Panel</a></p>
-      <h1>Contenido</h1>
-      <p class="nota">Los cambios se guardan en la base al instante, pero <strong>solo se ven en el sitio tras pulsar «Publicar»</strong> en el inicio del panel.</p>
-      <div id="tabs"></div>
-      <div id="lista"></div>
-    </section>
-    <script src="../../scripts/panel-contenido.js"></script>
-  </body>
-</html>
+<AdminLayout titulo="Contenido" activo="contenido">
+  <div class="cabecera"><h1>Contenido</h1></div>
+  <p class="sub">Edita lo que se ve en el sitio. Guarda cada tarjeta por separado; luego pulsa <strong>Publicar cambios</strong> para reflejarlo en el sitio.</p>
+
+  <div class="barra-rec">
+    <div id="tabs" class="tabs"></div>
+    <button class="acc" id="nuevo" hidden>+ Nuevo</button>
+  </div>
+
+  <div id="lista"><div class="cargando">Cargando…</div></div>
+
+  <style>
+    .barra-rec { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.1rem; flex-wrap: wrap; }
+    .tabs { display: inline-flex; background: #ece5d6; border-radius: 10px; padding: 4px; gap: 2px; }
+    .tabs button { border: 0; background: transparent; color: var(--muted); font: 600 .9rem var(--sans);
+      padding: .45rem .9rem; border-radius: 7px; cursor: pointer; }
+    .tabs button.on { background: var(--card); color: var(--navy); box-shadow: var(--sombra); }
+    .item h3 { font-family: var(--serif); font-size: 1.15rem; margin: 0 0 .1rem; color: var(--navy); }
+    .item .clave-id { color: var(--muted); font-size: .8rem; margin-bottom: .8rem; }
+    .item.inactivo { opacity: .62; }
+    .item .badge-off { font-size: .72rem; color: var(--danger); border: 1px solid #e6c4c4; border-radius: 999px; padding: .05rem .5rem; margin-left: .5rem; }
+    .nuevo-card { border: 1px dashed var(--navy-soft); background: #fbf8f0; }
+  </style>
+  <script src="../../scripts/panel-contenido.js"></script>
+</AdminLayout>
