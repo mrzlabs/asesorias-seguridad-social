@@ -1,0 +1,116 @@
+---
+import Legal from '../../layouts/Legal.astro';
+import { obtenerContenido } from '../../datos/api.js';
+
+const datos = await obtenerContenido();
+const c = datos.config || {};
+
+const empresa = c.empresa_nombre || 'Asesorías Seguridad Social SAS';
+const correo = c.email_contacto || 'gestion.seguridadsocial.colombia@gmail.com';
+const direccion = c.direccion || 'Bogotá, Colombia';
+const telefono = c.whatsapp_numero ? `+${c.whatsapp_numero}` : '+57 320 406 0607';
+---
+<Legal
+  titulo="Política de tratamiento de datos personales | Asesorías SAS"
+  descripcion="Política de tratamiento de datos personales conforme a la Ley 1581 de 2012. Derechos del titular, finalidades y canales de atención."
+  ruta="/legal/politica-de-datos/"
+  actualizado="27 de julio de 2026"
+>
+  <span slot="titulo">Política de tratamiento de datos personales</span>
+
+  <h2>1. Responsable del tratamiento</h2>
+  <div class="dato">
+    <p><strong>{empresa}</strong></p>
+    <p>Domicilio: {direccion}</p>
+    <p>Correo para protección de datos: <a href={`mailto:${correo}`}>{correo}</a></p>
+    <p>Teléfono: {telefono}</p>
+  </div>
+  <p>
+    En cumplimiento de la <strong>Ley 1581 de 2012</strong>, el <strong>Decreto 1074
+    de 2015</strong> y demás normas concordantes sobre protección de datos personales
+    en Colombia, {empresa} adopta la presente política, aplicable a toda la
+    información personal registrada en sus bases de datos.
+  </p>
+
+  <h2>2. Datos que recolectamos</h2>
+  <p>A través de este sitio y de nuestros canales de atención podemos recolectar:</p>
+  <ul>
+    <li><strong>Datos de identificación y contacto:</strong> nombre, número de celular, correo electrónico y ciudad.</li>
+    <li><strong>Datos de la solicitud:</strong> servicio de interés y el mensaje que nos escribas.</li>
+    <li><strong>Datos de navegación:</strong> páginas visitadas, origen de la visita y campaña, mediante herramientas de analítica.</li>
+    <li><strong>Datos necesarios para el trámite:</strong> cuando contratas un servicio, los documentos e información que la entidad correspondiente exija para la afiliación.</li>
+  </ul>
+
+  <h3>Datos sensibles</h3>
+  <p>
+    Algunos trámites de afiliación al sistema de salud pueden requerir información
+    relacionada con tu estado de salud o el de tu grupo familiar. La ley clasifica
+    estos como <strong>datos sensibles</strong>. No estás obligado a autorizar su
+    tratamiento; si decides no hacerlo, es posible que no podamos gestionar el
+    trámite. Estos datos se usan exclusivamente para adelantar la afiliación ante la
+    entidad y no se emplean para ninguna otra finalidad.
+  </p>
+  <p>
+    No recolectamos datos de menores de edad salvo que sean necesarios para su
+    afiliación como beneficiarios, y siempre con autorización de quien ejerza la
+    patria potestad.
+  </p>
+
+  <h2>3. Finalidades del tratamiento</h2>
+  <ul>
+    <li>Contactarte para atender tu solicitud de asesoría o cotización.</li>
+    <li>Adelantar ante las entidades correspondientes los trámites de afiliación, traslado o vinculación que contrates.</li>
+    <li>Gestionar mensualmente tu planilla y remitirte los soportes.</li>
+    <li>Informarte sobre el estado de tus trámites.</li>
+    <li>Enviarte información sobre servicios y promociones, únicamente si lo autorizas.</li>
+    <li>Cumplir obligaciones legales, contables y tributarias.</li>
+    <li>Medir el uso del sitio con fines estadísticos y de mejora.</li>
+  </ul>
+
+  <h2>4. Transferencia y transmisión de datos</h2>
+  <p>
+    Para prestar el servicio necesitamos compartir tus datos con las entidades ante
+    las cuales se realiza el trámite: <strong>EPS, ARL, fondos de pensiones, cajas
+    de compensación, aseguradoras y operadores de información de la planilla
+    PILA</strong>. Esta transmisión es indispensable para la ejecución del servicio
+    que contratas.
+  </p>
+  <p>
+    No vendemos, arrendamos ni cedemos tus datos personales a terceros con fines
+    comerciales.
+  </p>
+
+  <h2>5. Derechos del titular</h2>
+  <p>Conforme al artículo 8 de la Ley 1581 de 2012, tienes derecho a:</p>
+  <ul>
+    <li>Conocer, actualizar y rectificar tus datos personales.</li>
+    <li>Solicitar prueba de la autorización que otorgaste.</li>
+    <li>Ser informado sobre el uso que se ha dado a tus datos.</li>
+    <li>Presentar quejas ante la Superintendencia de Industria y Comercio.</li>
+    <li>Revocar la autorización o solicitar la supresión de tus datos, cuando no exista un deber legal o contractual que lo impida.</li>
+    <li>Acceder de forma gratuita a tus datos personales.</li>
+  </ul>
+
+  <h2>6. Cómo ejercer tus derechos</h2>
+  <p>
+    Escríbenos a <a href={`mailto:${correo}`}>{correo}</a> indicando tu nombre, un
+    dato de contacto y la solicitud concreta. Los plazos legales son:
+  </p>
+  <ul>
+    <li><strong>Consultas:</strong> se atienden en un máximo de diez días hábiles, prorrogables por cinco más.</li>
+    <li><strong>Reclamos:</strong> se atienden en un máximo de quince días hábiles, prorrogables por ocho más.</li>
+  </ul>
+  <p>
+    Si consideras que no atendimos adecuadamente tu solicitud, puedes acudir a la
+    <strong>Superintendencia de Industria y Comercio</strong>.
+  </p>
+
+  <h2>7. Vigencia</h2>
+  <p>
+    Esta política rige desde el 27 de julio de 2026. Tus datos permanecerán en
+    nuestras bases mientras exista una relación contractual vigente y,
+    posteriormente, durante el tiempo que exijan las obligaciones legales de
+    conservación. Cualquier cambio sustancial será comunicado a través de este
+    mismo sitio.
+  </p>
+</Legal>

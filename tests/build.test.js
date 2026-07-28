@@ -265,3 +265,58 @@ describe('Promociones y carrusel', () => {
     }
   });
 });
+
+describe('Cumplimiento legal', () => {
+  test('existe la política de tratamiento de datos', async () => {
+    assert.ok(await existe('legal/politica-de-datos/index.html'));
+  });
+
+  test('existen los términos y condiciones', async () => {
+    assert.ok(await existe('legal/terminos/index.html'));
+  });
+
+  test('la política cubre los elementos que exige la Ley 1581', async () => {
+    const html = await leer('legal/politica-de-datos/index.html');
+    for (const exigido of [
+      'Responsable del tratamiento',
+      'Finalidades',
+      'Derechos del titular',
+      'Superintendencia de Industria y Comercio',
+      'Vigencia',
+    ]) {
+      assert.ok(html.includes(exigido), `la política no cubre: ${exigido}`);
+    }
+  });
+
+  test('el formulario exige autorización expresa y no viene premarcada', async () => {
+    const html = await leer('index.html');
+    const casilla = html.match(/<input type="checkbox"[^>]*name="autorizacion"[^>]*>/);
+    assert.ok(casilla, 'no hay casilla de autorización');
+    assert.match(casilla[0], /required/, 'la casilla no es obligatoria');
+    assert.doesNotMatch(casilla[0], /checked/, 'la casilla viene premarcada, la ley lo prohíbe');
+  });
+
+  test('la casilla enlaza a la política', async () => {
+    const html = await leer('index.html');
+    assert.match(html, /href="\/legal\/politica-de-datos\/"/);
+  });
+
+  test('cada página de servicio también exige la autorización', async () => {
+    for (const slug of SLUGS.slice(0, 5)) {
+      const html = await leer(`servicios/${slug}/index.html`);
+      assert.match(html, /name="autorizacion"/, `${slug} sin casilla`);
+    }
+  });
+
+  test('el pie enlaza a los dos documentos legales', async () => {
+    const html = await leer('index.html');
+    assert.match(html, /\/legal\/politica-de-datos\//);
+    assert.match(html, /\/legal\/terminos\//);
+  });
+
+  test('el sitemap incluye las páginas legales', async () => {
+    const xml = await leer('sitemap.xml');
+    assert.match(xml, /\/legal\/politica-de-datos\//);
+    assert.match(xml, /\/legal\/terminos\//);
+  });
+});

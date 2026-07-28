@@ -70,6 +70,19 @@ const SERVICIOS = await obtenerServicios();
     <textarea id="lead-mensaje" name="mensaje" rows="3"></textarea>
   </div>
 
+  <!-- Autorizacion expresa: la Ley 1581 de 2012 la exige y no puede venir
+       marcada por defecto. -->
+  <div class="lead__auth">
+    <input type="checkbox" id="lead-auth" name="autorizacion" required aria-describedby="err-autorizacion" />
+    <label for="lead-auth">
+      Autorizo el tratamiento de mis datos personales conforme a la
+      <a href="/legal/politica-de-datos/" target="_blank" rel="noopener">política de tratamiento de datos</a>.
+    </label>
+  </div>
+  <p class="lead__error" id="err-autorizacion" hidden>
+    Necesitamos tu autorización para poder contactarte.
+  </p>
+
   <button type="submit" class="boton boton--principal lead__enviar" id="leadEnviar">
     Solicitar asesoría
   </button>
@@ -77,7 +90,8 @@ const SERVICIOS = await obtenerServicios();
   <p class="lead__estado" id="leadEstado" role="status" aria-live="polite"></p>
 
   <p class="lead__nota">
-    Te contactamos en menos de 24 horas hábiles. No compartimos tus datos con terceros.
+    Te contactamos en menos de 24 horas hábiles. Tus datos se comparten únicamente
+    con la entidad donde se radica tu trámite.
   </p>
 </form>
 
@@ -99,7 +113,10 @@ const SERVICIOS = await obtenerServicios();
       const input = form.elements[campo];
       const aviso = document.getElementById('err-' + campo);
       input.setAttribute('aria-invalid', hayError ? 'true' : 'false');
-      input.classList.toggle('es-error', hayError);
+      // En la casilla se resalta el bloque completo: el cuadro es
+      // demasiado pequeno para que un borde rojo se note.
+      const destino = input.type === 'checkbox' ? input.closest('.lead__auth') : input;
+      destino.classList.toggle('es-error', hayError);
       if (aviso) aviso.hidden = !hayError;
       return !hayError;
     }
@@ -118,6 +135,7 @@ const SERVICIOS = await obtenerServicios();
       valido = marcarError('nombre', nombre.length < 2) && valido;
       valido = marcarError('telefono', !/^3\d{9}$/.test(telefono)) && valido;
       valido = marcarError('email', email !== '' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) && valido;
+      valido = marcarError('autorizacion', !form.elements.autorizacion.checked) && valido;
 
       if (!valido) {
         estado.textContent = 'Revisa los campos marcados.';
@@ -146,6 +164,10 @@ const SERVICIOS = await obtenerServicios();
             mensaje: form.elements.mensaje.value.trim(),
             utm_source: utm.source,
             utm_campaign: utm.campaign,
+            // Constancia del consentimiento: la ley exige poder probarlo.
+            autorizacion_datos: true,
+            autorizacion_fecha: new Date().toISOString(),
+            autorizacion_version: '2026-07-27',
             _userAgent: navigator.userAgent,
             _ip: '',
           }),
@@ -268,6 +290,33 @@ const SERVICIOS = await obtenerServicios();
   .lead__estado { font-size: var(--t-sm); font-weight: 600; margin: 0; }
   .lead__estado.es-exito { color: var(--exito); }
   .lead__estado.es-error { color: var(--alerta); }
+
+  .lead__auth {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--e-2);
+    padding: var(--e-3);
+    border: 1px solid var(--linea);
+    border-radius: var(--radio);
+    background: var(--papel);
+    transition: border-color .22s ease, background-color .22s ease;
+  }
+  .lead__auth:hover { border-color: var(--tinta-tenue); }
+  .lead__auth.es-error { border-color: var(--alerta); background: rgba(168, 68, 58, .05); }
+  .lead__auth input {
+    width: auto;
+    margin-top: 2px;
+    accent-color: var(--azul-tinta);
+    flex-shrink: 0;
+  }
+  .lead__auth label {
+    font-size: var(--t-xs);
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--tinta-suave);
+    cursor: pointer;
+  }
+  .lead__auth a { color: var(--azul-medio); }
 
   .lead__nota {
     font-size: var(--t-xs);

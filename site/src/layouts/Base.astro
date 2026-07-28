@@ -5,6 +5,12 @@ import '../estilos/base.css';
 import Cabecera from '../componentes/Cabecera.astro';
 import PieDePagina from '../componentes/PieDePagina.astro';
 import WhatsAppFlotante from '../componentes/WhatsAppFlotante.astro';
+import { obtenerContenido } from '../datos/api.js';
+
+// GA4 solo si hay identificador en la hoja: sin esto se inyectaria una
+// etiqueta rota en todas las paginas.
+const cfg = (await obtenerContenido()).config || {};
+const ga4 = (cfg.ga4_id || '').trim();
 
 const { titulo, descripcion, ruta = '/', jsonLd = null } = Astro.props;
 const canonical = new URL(ruta, Astro.site).href;
@@ -38,6 +44,18 @@ const imagen = new URL('/og-image.png', Astro.site).href;
   <link rel="preload" href="/fuentes/fraunces-600.woff2" as="font" type="font/woff2" crossorigin />
 
   {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+
+  {ga4 && (
+    <>
+      <script async src={`https://www.googletagmanager.com/gtag/js?id=${ga4}`}></script>
+      <script is:inline set:html={`
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '${ga4}', { anonymize_ip: true });
+      `} />
+    </>
+  )}
 </head>
 <body>
   <a class="salto-contenido" href="#contenido">Saltar al contenido</a>
@@ -70,6 +88,12 @@ const imagen = new URL('/og-image.png', Astro.site).href;
       });
       if (navigator.sendBeacon) {
         navigator.sendBeacon(API + '/evento', new Blob([cuerpo], { type: 'application/json' }));
+      }
+      // GA4, si esta configurado. El registro propio no depende de esto.
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', 'clic_whatsapp', {
+          servicio: detalle, origen, campana, codigo,
+        });
       }
     }
 

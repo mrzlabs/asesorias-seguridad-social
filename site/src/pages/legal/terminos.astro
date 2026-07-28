@@ -1,0 +1,120 @@
+---
+import Legal from '../../layouts/Legal.astro';
+import { obtenerContenido } from '../../datos/api.js';
+
+const datos = await obtenerContenido();
+const c = datos.config || {};
+const empresa = c.empresa_nombre || 'Asesorías Seguridad Social SAS';
+const correo = c.email_contacto || 'gestion.seguridadsocial.colombia@gmail.com';
+const horario = c.horario_atencion || 'Lunes a viernes de 8:00 a 18:00';
+---
+<Legal
+  titulo="Términos y condiciones | Asesorías SAS"
+  descripcion="Términos y condiciones del servicio de asesoría y gestión de afiliaciones a seguridad social en Colombia."
+  ruta="/legal/terminos/"
+  actualizado="27 de julio de 2026"
+>
+  <span slot="titulo">Términos y condiciones</span>
+
+  <h2>1. Qué servicio prestamos</h2>
+  <p>
+    {empresa} presta servicios de <strong>asesoría y gestión de trámites</strong>
+    ante entidades del sistema de seguridad social y compañías aseguradoras en
+    Colombia: afiliaciones a EPS, ARL, fondos de pensiones y cajas de compensación,
+    traslados, liquidación y pago de planilla PILA, y vinculación a pólizas y
+    seguros.
+  </p>
+
+  <h2>2. Qué no somos</h2>
+  <div class="dato">
+    <p>
+      <strong>No somos una EPS, ARL, fondo de pensiones, caja de compensación ni
+      compañía de seguros.</strong> Actuamos como intermediarios que gestionan tu
+      trámite ante esas entidades. La prestación de los servicios de salud,
+      pensión, riesgos laborales o cobertura de seguros corresponde exclusivamente
+      a la entidad con la que quedes vinculado.
+    </p>
+  </div>
+
+  <h2>3. Alcance y límites de la gestión</h2>
+  <p>
+    Nos comprometemos a radicar tu trámite correctamente y a hacerle seguimiento
+    hasta obtener respuesta. Sin embargo:
+  </p>
+  <ul>
+    <li>La <strong>aprobación</strong> de la afiliación depende de la entidad receptora, no de nosotros.</li>
+    <li>Los <strong>tiempos de activación</strong> los define cada entidad y sus ciclos de reporte.</li>
+    <li>Una entidad puede <strong>rechazar</strong> una solicitud por causas ajenas a nuestra gestión, como requisitos incumplidos o información inconsistente.</li>
+    <li>No respondemos por decisiones, demoras o negativas de las entidades ante las cuales se radica el trámite.</li>
+  </ul>
+  <p>
+    Los plazos que indicamos, como la radicación en menos de 24 horas hábiles, se
+    refieren a <strong>nuestra gestión</strong>, no a la respuesta de la entidad.
+  </p>
+
+  <h2>4. Tu responsabilidad como usuario</h2>
+  <ul>
+    <li>Entregar información veraz, completa y actualizada.</li>
+    <li>Aportar los documentos que la entidad exija dentro de los plazos indicados.</li>
+    <li>Informarnos cualquier cambio en tus datos o en tu situación laboral.</li>
+    <li>Realizar oportunamente los pagos de aportes que te correspondan.</li>
+  </ul>
+  <p>
+    La información inexacta o incompleta puede llevar al rechazo del trámite o a la
+    pérdida de cobertura, sin responsabilidad de nuestra parte.
+  </p>
+
+  <h2>5. Honorarios y aportes</h2>
+  <p>Es importante que distingas dos valores distintos:</p>
+  <ul>
+    <li>
+      <strong>El aporte de ley:</strong> los porcentajes que la normativa exige
+      sobre tu Ingreso Base de Cotización. Ese dinero va a las entidades del
+      sistema, no a nosotros.
+    </li>
+    <li>
+      <strong>Nuestro honorario de gestión:</strong> el valor que cobramos por
+      adelantar y hacer seguimiento al trámite.
+    </li>
+  </ul>
+  <p>
+    Los valores publicados como "desde" corresponden al escenario más sencillo. El
+    valor definitivo se confirma en la cotización, antes de que contrates. Cualquier
+    cifra calculada en este sitio es <strong>una estimación orientativa</strong>: el
+    monto real lo determina la entidad al liquidar.
+  </p>
+
+  <h2>6. Información del sitio</h2>
+  <p>
+    El contenido informativo de este sitio, incluidas las preguntas frecuentes y las
+    referencias normativas, tiene <strong>carácter orientativo</strong> y puede
+    quedar desactualizado ante cambios en la regulación. No sustituye asesoría legal
+    ni contable profesional. Verifica siempre la información con la entidad
+    correspondiente o con la normativa vigente.
+  </p>
+
+  <h2>7. Canales oficiales</h2>
+  <p>
+    Nuestros únicos canales oficiales son este sitio web, los números de WhatsApp
+    publicados y el correo <a href={`mailto:${correo}`}>{correo}</a>. Horario de
+    atención: {horario}.
+  </p>
+  <p>
+    <strong>No solicitamos contraseñas ni claves de acceso a portales de
+    entidades.</strong> Si alguien te las pide en nuestro nombre, desconfía y
+    repórtalo.
+  </p>
+
+  <h2>8. Protección de datos</h2>
+  <p>
+    El tratamiento de tus datos personales se rige por nuestra
+    <a href="/legal/politica-de-datos/">Política de tratamiento de datos
+    personales</a>.
+  </p>
+
+  <h2>9. Ley aplicable</h2>
+  <p>
+    Estos términos se rigen por la legislación colombiana. Cualquier controversia se
+    someterá a los jueces competentes de la República de Colombia.
+  </p>
+</Legal>
