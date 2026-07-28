@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import BotonWhatsApp from '../../componentes/BotonWhatsApp.astro';
 import FormularioLead from '../../componentes/FormularioLead.astro';
 import { obtenerServicios, metaDeServicio, etiquetaCategoria } from '../../datos/servicios.js';
+import Icono from '../../componentes/Icono.astro';
 import { obtenerContenido } from '../../datos/api.js';
 
 export async function getStaticPaths() {
@@ -79,6 +80,7 @@ const jsonLd = {
         <span aria-current="page">{servicio.nombre}</span>
       </nav>
 
+      <span class="cab-ico"><Icono nombre={servicio.icono} tamano={26} /></span>
       <span class="etiqueta-cat">{categoria}</span>
       <h1>{servicio.nombre}</h1>
       {servicio.descripcion_corta && <p class="entrada">{servicio.descripcion_corta}</p>}
@@ -152,6 +154,17 @@ const jsonLd = {
   .miga { font-size: var(--t-xs); color: rgba(245, 241, 232, .55); margin-bottom: var(--e-8); }
   .miga a { color: rgba(245, 241, 232, .78); text-decoration: none; }
   .miga a:hover { color: var(--dorado-claro); }
+
+  .cab-ico {
+    display: grid;
+    place-items: center;
+    width: 52px; height: 52px;
+    border-radius: var(--radio);
+    border: 1px solid rgba(217, 180, 73, .35);
+    background: rgba(217, 180, 73, .1);
+    color: var(--dorado-claro);
+    margin-bottom: var(--e-4);
+  }
 
   .etiqueta-cat {
     display: inline-block;

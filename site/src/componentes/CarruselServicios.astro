@@ -1,5 +1,7 @@
 ---
 // Los 24 servicios en una pista horizontal, filtrables por categoria.
+import Icono from './Icono.astro';
+
 const { grupos = [] } = Astro.props;
 const todos = grupos.flatMap((g) => g.servicios.map((s) => ({ ...s, _grupo: g.etiqueta })));
 ---
@@ -26,6 +28,7 @@ const todos = grupos.flatMap((g) => g.servicios.map((s) => ({ ...s, _grupo: g.et
     {todos.map((s) => (
       <li class="carr__item" data-cat={s.categoria}>
         <a class="carr__tarjeta" href={`/servicios/${s.slug}/`}>
+          <span class="carr__ico"><Icono nombre={s.icono} tamano={19} /></span>
           <span class="carr__grupo">{s._grupo}</span>
           <span class="carr__nombre">{s.nombre}</span>
           <span class="carr__desc">{s.descripcion_corta}</span>
@@ -172,6 +175,22 @@ const todos = grupos.flatMap((g) => g.servicios.map((s) => ({ ...s, _grupo: g.et
   }
   .carr__tarjeta:hover::before,
   .carr__tarjeta:focus-visible::before { transform: scaleX(1); }
+
+  .carr__ico {
+    display: grid;
+    place-items: center;
+    width: 36px; height: 36px;
+    border-radius: var(--radio);
+    background: var(--dorado-tenue);
+    border: 1px solid rgba(201, 162, 39, .32);
+    color: var(--azul-tinta);
+    transition: background-color .3s ease, color .3s ease, transform .35s cubic-bezier(.34,1.3,.5,1);
+  }
+  .carr__tarjeta:hover .carr__ico {
+    background: var(--azul-tinta);
+    color: var(--dorado-claro);
+    transform: scale(1.08) rotate(-3deg);
+  }
 
   .carr__grupo {
     font-size: 11px;
