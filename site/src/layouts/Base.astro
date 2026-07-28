@@ -11,6 +11,9 @@ import { obtenerContenido } from '../datos/api.js';
 // etiqueta rota en todas las paginas.
 const cfg = (await obtenerContenido()).config || {};
 const ga4 = (cfg.ga4_id || '').trim();
+// Verificacion de Search Console: basta pegar el codigo en la hoja, en
+// la clave google_site_verification.
+const verificacion = (cfg.google_site_verification || '').trim();
 
 const { titulo, descripcion, ruta = '/', jsonLd = null } = Astro.props;
 const canonical = new URL(ruta, Astro.site).href;
@@ -38,6 +41,8 @@ const imagen = new URL('/og-image.png', Astro.site).href;
   <meta name="twitter:title" content={titulo} />
   <meta name="twitter:description" content={descripcion} />
   <meta name="twitter:image" content={imagen} />
+
+  {verificacion && <meta name="google-site-verification" content={verificacion} />}
 
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="preload" href="/fuentes/inter-var.woff2" as="font" type="font/woff2" crossorigin />
