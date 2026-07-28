@@ -41,13 +41,15 @@ a { color: inherit; text-decoration-color: var(--dorado); text-underline-offset:
   }
 }
 
+/* El relleno lateral crece con la pantalla: en monitores anchos el
+   contenido no queda pegado al borde y en movil no se ahoga. */
 .contenedor {
   max-width: var(--ancho);
   margin-inline: auto;
-  padding-inline: var(--e-6);
+  padding-inline: clamp(1.25rem, 4.5vw, 3.5rem);
 }
 
-.seccion { padding-block: var(--e-16); }
+.seccion { padding-block: clamp(3.5rem, 7vw, 6rem); }
 
 /* Oculto visualmente pero accesible. Se usa clip-path en lugar de
    left:-9999px: el desplazamiento negativo agranda el area del

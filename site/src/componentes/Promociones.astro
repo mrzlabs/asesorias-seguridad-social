@@ -1,14 +1,17 @@
 ---
-// Promociones vigentes desde la hoja. Las imagenes se sirven todavia
-// desde Drive; traerlas al dominio propio mejoraria el LCP.
+// Promociones vigentes desde la hoja. Las imagenes se sirven desde el
+// propio dominio: Drive anadia una peticion a un tercero en la ruta
+// critica y no permite controlar formato ni compresion.
 const { flyers = [] } = Astro.props;
 
 const vigentes = flyers
   .filter((f) => f.activo && f.drive_id)
   .sort((a, b) => (a.orden || 0) - (b.orden || 0));
 
-const miniatura = (id, ancho) =>
-  `https://drive.google.com/thumbnail?id=${id}&sz=w${ancho}`;
+/** Nombre de archivo local derivado del titulo, igual que en la descarga. */
+const archivo = (titulo) =>
+  titulo.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 ---
 {vigentes.length > 0 && (
   <div class="promos">
@@ -20,15 +23,18 @@ const miniatura = (id, ancho) =>
             class="promo__abrir"
             data-titulo={f.titulo}
             data-desc={f.descripcion}
-            data-img={miniatura(f.drive_id, 1200)}
+            data-img={`/promociones/${archivo(f.titulo)}.jpg`}
           >
             <span class="promo__marco">
-              <img
-                src={miniatura(f.drive_id, 700)}
-                alt={f.titulo}
-                loading="lazy"
-                decoding="async"
-              />
+              <picture>
+                <source srcset={`/promociones/${archivo(f.titulo)}.webp`} type="image/webp" />
+                <img
+                  src={`/promociones/${archivo(f.titulo)}.jpg`}
+                  alt={f.titulo}
+                  width="1000" height="1500"
+                  loading="lazy" decoding="async"
+                />
+              </picture>
               <span class="promo__lupa" aria-hidden="true">Ver completa</span>
             </span>
             <span class="promo__cuerpo">

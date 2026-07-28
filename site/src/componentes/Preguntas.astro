@@ -173,8 +173,10 @@ const categorias = [...new Set(faq.map((f) => f.categoria).filter(Boolean))];
     display: flex;
     gap: var(--e-4);
     overflow-x: auto;
+    /* overflow-y visible no es posible junto a overflow-x: auto, asi que
+       el crecimiento de la tarjeta se absorbe con relleno propio. */
     scroll-snap-type: x proximity;
-    padding: var(--e-2) var(--e-1) var(--e-6);
+    padding: var(--e-8) var(--e-1) var(--e-8);
     scrollbar-width: thin;
   }
   .preg__pista::-webkit-scrollbar { height: 6px; }
@@ -184,11 +186,15 @@ const categorias = [...new Set(faq.map((f) => f.categoria).filter(Boolean))];
   }
   .preg__pista::-webkit-scrollbar-thumb:hover { background: var(--dorado); }
 
-  .preg__t { flex: 0 0 clamp(250px, 27vw, 310px); scroll-snap-align: start; }
+  .preg__t { flex: 0 0 clamp(250px, 27vw, 310px); scroll-snap-align: start; position: relative; }
+  .preg__t:hover { z-index: 3; }
 
   .preg__cara {
     position: relative;
-    height: 236px;
+    /* Altura base uniforme; al enfocar crece hasta caber la respuesta
+       completa. Antes se quedaba fija y cortaba el texto. */
+    min-height: 250px;
+    height: 250px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -200,11 +206,14 @@ const categorias = [...new Set(faq.map((f) => f.categoria).filter(Boolean))];
     cursor: default;
     /* Todo se mueve con la misma curva y duracion: la tarjeta crece,
        la respuesta emerge y la sombra se abre a la vez. Sin saltos. */
+    /* Al volver, la curva es mas larga para que el descenso se sienta
+       amortiguado en lugar de un corte seco. */
     transition:
-      transform .42s cubic-bezier(.22, .78, .3, 1),
-      box-shadow .42s cubic-bezier(.22, .78, .3, 1),
-      border-color .42s ease,
-      background-color .42s ease;
+      height .46s cubic-bezier(.22, .78, .3, 1),
+      transform .5s cubic-bezier(.34, 1.32, .5, 1),
+      box-shadow .5s cubic-bezier(.22, .78, .3, 1),
+      border-color .4s ease,
+      background-color .4s ease;
   }
 
   .preg__n {
@@ -231,6 +240,12 @@ const categorias = [...new Set(faq.map((f) => f.categoria).filter(Boolean))];
   /* La respuesta esta detras: emerge desde abajo, no aparece de golpe. */
   .preg__resp {
     margin: 0;
+    /* Barra discreta: la respuesta larga sigue siendo recorrible pero la
+       barra no compite con el texto. */
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(217, 180, 73, .55) transparent;
+    padding-right: 4px;
     font-size: var(--t-sm);
     line-height: 1.55;
     color: rgba(245, 241, 232, .88);
@@ -239,6 +254,13 @@ const categorias = [...new Set(faq.map((f) => f.categoria).filter(Boolean))];
     transition:
       opacity .38s ease .04s,
       transform .42s cubic-bezier(.22, .78, .3, 1) .04s;
+  }
+
+  .preg__resp::-webkit-scrollbar { width: 4px; }
+  .preg__resp::-webkit-scrollbar-track { background: transparent; }
+  .preg__resp::-webkit-scrollbar-thumb {
+    background: rgba(217, 180, 73, .5);
+    border-radius: 999px;
   }
 
   .preg__pista-txt {
@@ -252,11 +274,13 @@ const categorias = [...new Set(faq.map((f) => f.categoria).filter(Boolean))];
 
   .preg__cara:hover,
   .preg__cara:focus-visible {
-    transform: translateY(-6px) scale(1.035);
+    /* Sobresale: sube, crece y se despega del resto con sombra profunda. */
+    height: 452px;
+    transform: translateY(-18px) scale(1.06);
     background: var(--azul-tinta);
     border-color: var(--azul-tinta);
-    box-shadow: 0 22px 48px rgba(11, 37, 69, .3);
-    z-index: 2;
+    box-shadow: 0 30px 60px rgba(11, 37, 69, .38);
+    z-index: 3;
     outline: none;
   }
   .preg__cara:hover h3,
@@ -286,7 +310,7 @@ const categorias = [...new Set(faq.map((f) => f.categoria).filter(Boolean))];
 
   @media (prefers-reduced-motion: reduce) {
     .preg__cara, .preg__resp, .preg__n, .preg__tema { transition: none; }
-    .preg__cara:hover, .preg__cara:focus-visible { transform: none; }
+    .preg__cara:hover, .preg__cara:focus-visible { transform: none; height: 452px; }
     .preg__pista:hover .preg__t:not(:hover) .preg__cara { filter: none; opacity: 1; }
   }
 
@@ -294,5 +318,6 @@ const categorias = [...new Set(faq.map((f) => f.categoria).filter(Boolean))];
     .preg__control { align-items: stretch; }
     .preg__buscar input { width: 100%; min-width: 0; }
     .preg__cara { height: auto; min-height: 210px; }
+    .preg__cara:hover, .preg__cara:focus-visible { height: auto; transform: translateY(-6px); }
   }
 </style>

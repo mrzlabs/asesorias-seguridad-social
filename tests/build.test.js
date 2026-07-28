@@ -194,7 +194,30 @@ describe('Promociones y carrusel', () => {
     const activos = (datos.flyers || []).filter((f) => f.activo && f.drive_id);
     const html = await leer('index.html');
     for (const f of activos) {
-      assert.ok(html.includes(f.drive_id), `falta la promoción ${f.titulo}`);
+      assert.ok(html.includes(f.titulo), `falta la promoción ${f.titulo}`);
+    }
+  });
+
+  test('las promociones se sirven desde el dominio propio, no desde Drive', async () => {
+    const html = await leer('index.html');
+    assert.doesNotMatch(
+      html,
+      /drive\.google\.com/,
+      'todavía hay imágenes cargándose desde Google Drive'
+    );
+    assert.match(html, /\/promociones\/[a-z0-9-]+\.(webp|jpg)/);
+  });
+
+  test('cada promoción tiene su archivo local en webp y jpg', async () => {
+    const r = await fetch(`${API}/getAllData`);
+    const datos = await r.json();
+    const nombre = (t) =>
+      t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    for (const f of (datos.flyers || []).filter((x) => x.activo && x.drive_id)) {
+      const base = nombre(f.titulo);
+      assert.ok(await existe(`promociones/${base}.webp`), `falta ${base}.webp`);
+      assert.ok(await existe(`promociones/${base}.jpg`), `falta ${base}.jpg`);
     }
   });
 
