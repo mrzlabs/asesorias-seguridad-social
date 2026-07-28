@@ -55,11 +55,13 @@ const anio = new Date().getFullYear();
   <div class="pie__base">
     <div class="contenedor pie__base-in">
       <span>© {anio} Asesorías Seguridad Social SAS · Colombia</span>
-      <a class="firma" href="https://mrzlabs.dev" target="_blank" rel="noopener">
+      <!-- mailto mientras no exista sitio propio: un enlace a un dominio
+           inexistente es peor que ninguno. -->
+      <a class="firma" href="mailto:contacto@mrzlabs.anonaddy.com">
         <span class="firma__marca" aria-hidden="true">&lt;/&gt;</span>
         <span class="firma__txt">
           Desarrollado por <strong>MrzLabs</strong>
-          <span class="firma__correo">contacto@mrzlabs.dev</span>
+          <span class="firma__correo">contacto@mrzlabs.anonaddy.com</span>
         </span>
       </a>
     </div>
