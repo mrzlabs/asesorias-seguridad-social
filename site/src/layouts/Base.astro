@@ -4,6 +4,7 @@ import '../estilos/tokens.css';
 import '../estilos/base.css';
 import Cabecera from '../componentes/Cabecera.astro';
 import PieDePagina from '../componentes/PieDePagina.astro';
+import WhatsAppFlotante from '../componentes/WhatsAppFlotante.astro';
 
 const { titulo, descripcion, ruta = '/', jsonLd = null } = Astro.props;
 const canonical = new URL(ruta, Astro.site).href;
@@ -45,5 +46,64 @@ const imagen = new URL('/og-image.png', Astro.site).href;
     <slot />
   </main>
   <PieDePagina />
+  <WhatsAppFlotante />
+
+  <script>
+    // Unico manejador de WhatsApp del sitio: cubre todos los .wa,
+    // incluido el flotante. Encapsula el enrutamiento por numero y el
+    // codigo de atribucion de campana.
+    const N313 = '573134572362';
+    const N320 = '573204060607';
+    const LINEA_ALTERNA = ['traslado-eps', 'traslado-pension', 'afiliacion-empresas', 'soat'];
+    const API = 'https://asesorias-api-proxy.andresmartinezr2204.workers.dev/api';
+
+    const params = new URLSearchParams(location.search);
+    const origen = params.get('utm_source') || 'directo';
+    const campana = params.get('utm_campaign') || '';
+    const codigo = (origen.slice(0, 3) + Date.now().toString(36).slice(-4)).toUpperCase();
+
+    function registrarEvento(detalle) {
+      const cuerpo = JSON.stringify({
+        tipo: 'clic_whatsapp', detalle,
+        pagina: location.pathname,
+        utm_source: origen, utm_campaign: campana, codigo,
+      });
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon(API + '/evento', new Blob([cuerpo], { type: 'application/json' }));
+      }
+    }
+
+    document.querySelectorAll('.wa').forEach((el) => {
+      el.addEventListener('click', (ev) => {
+        ev.preventDefault();
+        const slug = el.dataset.slug || '';
+        const numero = slug && LINEA_ALTERNA.includes(slug) ? N313 : N320;
+        const base = el.dataset.mensaje || 'Hola, quiero asesoría en seguridad social';
+        registrarEvento(slug || 'flotante');
+        window.open(
+          'https://wa.me/' + numero + '?text=' + encodeURIComponent(base + ' [' + codigo + ']'),
+          '_blank', 'noopener'
+        );
+      });
+    });
+
+    // Aparicion progresiva al entrar en pantalla: las secciones se
+    // revelan en vez de saltar. Se respeta prefers-reduced-motion.
+    const suave = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (suave && 'IntersectionObserver' in window) {
+      const obs = new IntersectionObserver((entradas) => {
+        entradas.forEach((e) => {
+          if (e.isIntersecting) {
+            e.target.classList.add('es-visible');
+            obs.unobserve(e.target);
+          }
+        });
+      }, { rootMargin: '0px 0px -8% 0px', threshold: 0.06 });
+
+      document.querySelectorAll('.aparece').forEach((el) => obs.observe(el));
+    } else {
+      document.querySelectorAll('.aparece').forEach((el) => el.classList.add('es-visible'));
+    }
+  </script>
 </body>
 </html>

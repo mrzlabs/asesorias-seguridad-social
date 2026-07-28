@@ -1,0 +1,298 @@
+---
+// Todas las preguntas de la hoja, no un recorte. Se pueden filtrar por
+// categoria, buscar por palabra clave y recorrer en horizontal.
+const { faq = [] } = Astro.props;
+
+const ETIQUETAS = {
+  proceso: 'Cómo trabajamos',
+  regulacion: 'Normativa',
+  requisitos: 'Requisitos',
+  tiempos: 'Tiempos',
+  servicios: 'Servicios',
+};
+
+const categorias = [...new Set(faq.map((f) => f.categoria).filter(Boolean))];
+---
+<div class="preg">
+  <div class="preg__control">
+    <div class="preg__filtros" role="group" aria-label="Filtrar preguntas por tema">
+      <button type="button" class="preg__chip es-activo" data-cat="todas">
+        Todas <span>{faq.length}</span>
+      </button>
+      {categorias.map((c) => (
+        <button type="button" class="preg__chip" data-cat={c}>
+          {ETIQUETAS[c] || c} <span>{faq.filter((f) => f.categoria === c).length}</span>
+        </button>
+      ))}
+    </div>
+
+    <div class="preg__buscar">
+      <label for="preg-q" class="preg__lbl">Buscar en las preguntas</label>
+      <input
+        type="search" id="preg-q" placeholder="Escribe una palabra: mora, IBC, traslado..."
+        autocomplete="off"
+      />
+    </div>
+  </div>
+
+  <p class="preg__contador" role="status" aria-live="polite" id="pregContador"></p>
+
+  <ul class="preg__pista" id="pregPista">
+    {faq.map((f, i) => (
+      <li
+        class="preg__t"
+        data-cat={f.categoria}
+        data-texto={`${f.pregunta} ${f.respuesta}`.toLowerCase()}
+      >
+        <article class="preg__cara" tabindex="0">
+          <span class="preg__n">{String(i + 1).padStart(2, '0')}</span>
+          <span class="preg__tema">{ETIQUETAS[f.categoria] || f.categoria}</span>
+          <h3>{f.pregunta}</h3>
+          <p class="preg__resp">{f.respuesta}</p>
+          <span class="preg__pista-txt" aria-hidden="true">Pasa el cursor para leer</span>
+        </article>
+      </li>
+    ))}
+  </ul>
+
+  <p class="preg__vacio" id="pregVacio" hidden>
+    No encontramos preguntas con esa palabra. Escríbenos y te respondemos directo.
+  </p>
+</div>
+
+<script>
+  const raiz = document.querySelector('.preg');
+  if (raiz) {
+    const pista = raiz.querySelector('#pregPista');
+    const tarjetas = [...pista.querySelectorAll('.preg__t')];
+    const chips = [...raiz.querySelectorAll('.preg__chip')];
+    const buscador = raiz.querySelector('#preg-q');
+    const contador = raiz.querySelector('#pregContador');
+    const vacio = raiz.querySelector('#pregVacio');
+
+    let categoria = 'todas';
+
+    function aplicar() {
+      const q = buscador.value.trim().toLowerCase();
+      let visibles = 0;
+
+      tarjetas.forEach((t) => {
+        const okCat = categoria === 'todas' || t.dataset.cat === categoria;
+        const okTexto = !q || t.dataset.texto.includes(q);
+        const mostrar = okCat && okTexto;
+        t.hidden = !mostrar;
+        if (mostrar) visibles++;
+      });
+
+      contador.textContent =
+        visibles === tarjetas.length
+          ? `${visibles} preguntas`
+          : `${visibles} de ${tarjetas.length} preguntas`;
+      vacio.hidden = visibles > 0;
+      pista.scrollTo({ left: 0, behavior: 'smooth' });
+    }
+
+    chips.forEach((c) => {
+      c.addEventListener('click', () => {
+        chips.forEach((o) => o.classList.toggle('es-activo', o === c));
+        categoria = c.dataset.cat;
+        aplicar();
+      });
+    });
+
+    buscador.addEventListener('input', aplicar);
+    aplicar();
+  }
+</script>
+
+<style>
+  .preg { display: grid; gap: var(--e-4); }
+
+  .preg__control {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: var(--e-6);
+    flex-wrap: wrap;
+  }
+
+  .preg__filtros { display: flex; flex-wrap: wrap; gap: var(--e-2); }
+  .preg__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--fuente-texto);
+    font-size: var(--t-xs);
+    font-weight: 600;
+    color: var(--tinta-suave);
+    background: transparent;
+    border: 1px solid var(--linea);
+    border-radius: 999px;
+    padding: 7px 14px;
+    cursor: pointer;
+    transition: color .22s ease, border-color .22s ease, background-color .22s ease;
+  }
+  .preg__chip span { color: var(--tinta-tenue); font-variant-numeric: tabular-nums; }
+  .preg__chip:hover { border-color: var(--dorado); color: var(--tinta); }
+  .preg__chip.es-activo {
+    background: var(--azul-tinta);
+    border-color: var(--azul-tinta);
+    color: var(--papel);
+  }
+  .preg__chip.es-activo span { color: var(--dorado-claro); }
+
+  .preg__lbl {
+    display: block;
+    font-size: var(--t-xs);
+    font-weight: 600;
+    color: var(--tinta-suave);
+    margin-bottom: 4px;
+  }
+  .preg__buscar input {
+    font-family: var(--fuente-texto);
+    font-size: var(--t-sm);
+    color: var(--tinta);
+    background: var(--papel-puro);
+    border: 1px solid var(--linea);
+    border-radius: var(--radio);
+    padding: 9px 13px;
+    min-width: min(320px, 76vw);
+    transition: border-color .2s ease, box-shadow .2s ease;
+  }
+  .preg__buscar input:focus {
+    outline: none;
+    border-color: var(--azul-medio);
+    box-shadow: 0 0 0 3px rgba(27, 59, 111, .12);
+  }
+
+  .preg__contador { font-size: var(--t-xs); color: var(--tinta-tenue); margin: 0; }
+
+  /* Pista horizontal con ajuste por scroll. */
+  .preg__pista {
+    list-style: none;
+    display: flex;
+    gap: var(--e-4);
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    padding: var(--e-2) var(--e-1) var(--e-6);
+    scrollbar-width: thin;
+  }
+  .preg__pista::-webkit-scrollbar { height: 6px; }
+  .preg__pista::-webkit-scrollbar-thumb {
+    background: var(--linea);
+    border-radius: 999px;
+  }
+  .preg__pista::-webkit-scrollbar-thumb:hover { background: var(--dorado); }
+
+  .preg__t { flex: 0 0 clamp(250px, 27vw, 310px); scroll-snap-align: start; }
+
+  .preg__cara {
+    position: relative;
+    height: 236px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: var(--e-2);
+    padding: var(--e-6);
+    background: var(--papel-puro);
+    border: 1px solid var(--linea);
+    border-radius: var(--radio-lg);
+    cursor: default;
+    /* Todo se mueve con la misma curva y duracion: la tarjeta crece,
+       la respuesta emerge y la sombra se abre a la vez. Sin saltos. */
+    transition:
+      transform .42s cubic-bezier(.22, .78, .3, 1),
+      box-shadow .42s cubic-bezier(.22, .78, .3, 1),
+      border-color .42s ease,
+      background-color .42s ease;
+  }
+
+  .preg__n {
+    font-family: var(--fuente-titulo);
+    font-size: var(--t-lg);
+    color: var(--dorado);
+    line-height: 1;
+    transition: opacity .34s ease;
+  }
+  .preg__tema {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--tinta-tenue);
+    transition: color .34s ease;
+  }
+  .preg__cara h3 {
+    font-size: var(--t-md);
+    line-height: 1.25;
+    transition: color .34s ease;
+  }
+
+  /* La respuesta esta detras: emerge desde abajo, no aparece de golpe. */
+  .preg__resp {
+    margin: 0;
+    font-size: var(--t-sm);
+    line-height: 1.55;
+    color: rgba(245, 241, 232, .88);
+    opacity: 0;
+    transform: translateY(10px);
+    transition:
+      opacity .38s ease .04s,
+      transform .42s cubic-bezier(.22, .78, .3, 1) .04s;
+  }
+
+  .preg__pista-txt {
+    margin-top: auto;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: .04em;
+    color: var(--tinta-tenue);
+    transition: opacity .24s ease;
+  }
+
+  .preg__cara:hover,
+  .preg__cara:focus-visible {
+    transform: translateY(-6px) scale(1.035);
+    background: var(--azul-tinta);
+    border-color: var(--azul-tinta);
+    box-shadow: 0 22px 48px rgba(11, 37, 69, .3);
+    z-index: 2;
+    outline: none;
+  }
+  .preg__cara:hover h3,
+  .preg__cara:focus-visible h3 { color: var(--papel); }
+  .preg__cara:hover .preg__tema,
+  .preg__cara:focus-visible .preg__tema { color: var(--dorado-claro); }
+  .preg__cara:hover .preg__n,
+  .preg__cara:focus-visible .preg__n { opacity: .55; }
+  .preg__cara:hover .preg__resp,
+  .preg__cara:focus-visible .preg__resp { opacity: 1; transform: translateY(0); }
+  .preg__cara:hover .preg__pista-txt,
+  .preg__cara:focus-visible .preg__pista-txt { opacity: 0; }
+
+  /* Difuminado del resto: al enfocar una, las demas se atenuan. */
+  .preg__pista:hover .preg__t:not(:hover) .preg__cara {
+    filter: blur(1.4px) saturate(.82);
+    opacity: .55;
+  }
+
+  .preg__vacio {
+    font-size: var(--t-sm);
+    color: var(--tinta-suave);
+    padding: var(--e-6);
+    border: 1px dashed var(--linea);
+    border-radius: var(--radio-lg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .preg__cara, .preg__resp, .preg__n, .preg__tema { transition: none; }
+    .preg__cara:hover, .preg__cara:focus-visible { transform: none; }
+    .preg__pista:hover .preg__t:not(:hover) .preg__cara { filter: none; opacity: 1; }
+  }
+
+  @media (max-width: 640px) {
+    .preg__control { align-items: stretch; }
+    .preg__buscar input { width: 100%; min-width: 0; }
+    .preg__cara { height: auto; min-height: 210px; }
+  }
+</style>

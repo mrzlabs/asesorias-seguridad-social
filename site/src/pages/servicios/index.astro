@@ -30,7 +30,7 @@ const total = (await obtenerServicios()).length;
     <section class="seccion grupo" id={g.clave} data-cat={g.clave}>
       <div class="contenedor">
         <h2>{g.etiqueta}</h2>
-        <ul class="rejilla">
+        <ul class="rejilla aparece aparece--escalonado">
           {g.servicios.map((s) => (
             <li class="tarjeta">
               <span class="tarjeta__icono" aria-hidden="true" data-icono={s.icono}></span>

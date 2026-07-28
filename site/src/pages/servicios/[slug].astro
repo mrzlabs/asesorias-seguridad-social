@@ -130,6 +130,17 @@ const jsonLd = {
       <FormularioLead servicioPreseleccionado={servicio.slug} />
     </div>
   </section>
+
+  <!-- Salida explicita: sin esto se entra a un servicio y no hay camino
+       de vuelta salvo el boton del navegador. -->
+  <nav class="salida" aria-label="Continuar navegando">
+    <div class="contenedor salida__in">
+      <a href="/servicios/" class="salida__volver">
+        <span aria-hidden="true">←</span> Ver todos los servicios
+      </a>
+      <a href="/" class="salida__inicio">Ir al inicio</a>
+    </div>
+  </nav>
 </Base>
 
 <style>
@@ -198,6 +209,29 @@ const jsonLd = {
     max-width: 40ch;
     margin-top: var(--e-4);
   }
+
+  .salida { background: var(--papel-puro); border-top: 1px solid var(--linea); }
+  .salida__in {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--e-4);
+    flex-wrap: wrap;
+    padding-block: var(--e-6);
+  }
+  .salida a { font-size: var(--t-sm); font-weight: 600; text-decoration: none; }
+  .salida__volver {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--e-2);
+    color: var(--azul-medio);
+  }
+  /* La flecha se desplaza al pasar el cursor: refuerza la direccion. */
+  .salida__volver span { transition: transform .28s cubic-bezier(.22,.78,.3,1); }
+  .salida__volver:hover span { transform: translateX(-4px); }
+  .salida__volver:hover { color: var(--azul-tinta); }
+  .salida__inicio { color: var(--tinta-tenue); }
+  .salida__inicio:hover { color: var(--azul-medio); }
 
   @media (max-width: 860px) {
     .contacto__in { grid-template-columns: 1fr; gap: var(--e-8); }

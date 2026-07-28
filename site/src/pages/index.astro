@@ -2,13 +2,14 @@
 import Base from '../layouts/Base.astro';
 import BotonWhatsApp from '../componentes/BotonWhatsApp.astro';
 import FormularioLead from '../componentes/FormularioLead.astro';
+import Preguntas from '../componentes/Preguntas.astro';
 import { serviciosPorCategoria } from '../datos/servicios.js';
 import { obtenerContenido } from '../datos/api.js';
 
 const datos = await obtenerContenido();
 const grupos = await serviciosPorCategoria();
 const destacados = grupos.flatMap((g) => g.servicios.slice(0, 1)).slice(0, 6);
-const faq = (datos.faq || []).filter((f) => f.activo).slice(0, 6);
+const faq = (datos.faq || []).filter((f) => f.activo);
 const testimonios = (datos.testimonios || []).filter((t) => t.activo).slice(0, 3);
 
 const jsonLd = {
@@ -98,7 +99,7 @@ const PASOS = [
   <section class="seccion">
     <div class="contenedor">
       <h2>Qué gestionamos</h2>
-      <ul class="rejilla">
+      <ul class="rejilla aparece aparece--escalonado">
         {destacados.map((s) => (
           <li class="tarjeta">
             <h3><a href={`/servicios/${s.slug}/`}>{s.nombre}</a></h3>
@@ -112,7 +113,7 @@ const PASOS = [
   <section class="seccion proceso" id="proceso">
     <div class="contenedor">
       <h2>Cómo funciona</h2>
-      <ol class="pasos">
+      <ol class="pasos aparece aparece--escalonado">
         {PASOS.map((p) => (
           <li>
             <span class="pasos__n">{p.n}</span>
@@ -128,7 +129,7 @@ const PASOS = [
     <section class="seccion">
       <div class="contenedor">
         <h2>Lo que dicen quienes ya lo hicieron</h2>
-        <ul class="testimonios">
+        <ul class="testimonios aparece aparece--escalonado">
           {testimonios.map((t) => (
             <li>
               <blockquote>{t.testimonio}</blockquote>
@@ -144,14 +145,11 @@ const PASOS = [
     <section class="seccion" id="preguntas">
       <div class="contenedor">
         <h2>Preguntas frecuentes</h2>
-        <div class="acordeon">
-          {faq.map((f) => (
-            <details>
-              <summary>{f.pregunta}</summary>
-              <p>{f.respuesta}</p>
-            </details>
-          ))}
-        </div>
+        <p class="seccion__intro">
+          Filtra por tema o busca una palabra. Pasa el cursor sobre una tarjeta
+          para leer la respuesta.
+        </p>
+        <Preguntas faq={faq} />
       </div>
     </section>
   )}

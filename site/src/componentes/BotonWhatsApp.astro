@@ -12,42 +12,4 @@ const { mensaje = '', slug = '', variante = 'principal' } = Astro.props;
   <slot>Escríbenos por WhatsApp</slot>
 </button>
 
-<script>
-  const N313 = '573134572362';
-  const N320 = '573204060607';
-  const WA_313 = ['traslado-eps', 'traslado-pension', 'traslado-arl', 'afiliacion-empresas', 'soat'];
-  const API = 'https://asesorias-api-proxy.andresmartinezr2204.workers.dev/api';
 
-  const params = new URLSearchParams(location.search);
-  const origen = params.get('utm_source') || 'directo';
-  const campana = params.get('utm_campaign') || '';
-  const codigo = (origen.slice(0, 3) + Date.now().toString(36).slice(-4)).toUpperCase();
-
-  function registrarEvento(detalle) {
-    const cuerpo = JSON.stringify({
-      tipo: 'clic_whatsapp',
-      detalle,
-      pagina: location.pathname,
-      utm_source: origen,
-      utm_campaign: campana,
-      codigo,
-    });
-    if (navigator.sendBeacon) {
-      navigator.sendBeacon(API + '/evento', new Blob([cuerpo], { type: 'application/json' }));
-    }
-  }
-
-  document.querySelectorAll('.wa').forEach((el) => {
-    el.addEventListener('click', () => {
-      const slug = el.dataset.slug || '';
-      const numero = slug && WA_313.includes(slug) ? N313 : N320;
-      const base = el.dataset.mensaje || 'Hola, quiero asesoría en seguridad social';
-      registrarEvento(slug || 'generico');
-      window.open(
-        'https://wa.me/' + numero + '?text=' + encodeURIComponent(base + ' [' + codigo + ']'),
-        '_blank',
-        'noopener'
-      );
-    });
-  });
-</script>

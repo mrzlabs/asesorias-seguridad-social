@@ -175,12 +175,17 @@ const SERVICIOS = await obtenerServicios();
 <style>
   .lead {
     background: var(--papel-puro);
+    /* Sin esto las etiquetas heredan el color claro de la seccion azul
+       que envuelve al formulario y quedan invisibles sobre el fondo
+       claro de la tarjeta. */
+    color: var(--tinta);
     border: 1px solid var(--linea);
     border-radius: var(--radio-lg);
     padding: var(--e-8);
     display: grid;
     gap: var(--e-4);
     max-width: 620px;
+    box-shadow: 0 18px 44px rgba(11, 37, 69, .22);
   }
 
   /* Oculta sin desplazamiento negativo: left:-9999px agranda el area

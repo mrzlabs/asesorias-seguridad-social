@@ -1,0 +1,75 @@
+---
+// Boton flotante persistente. El sitio anterior lo tenia y es el acceso
+// mas usado al canal principal de conversion.
+const { slug = '', mensaje = '' } = Astro.props;
+---
+<a
+  class="waf wa"
+  href="#"
+  data-slug={slug}
+  data-mensaje={mensaje}
+  aria-label="Escríbenos por WhatsApp"
+>
+  <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+    <path d="M12 0C5.373 0 0 5.373 0 12c0 2.14.562 4.148 1.543 5.89L0 24l6.305-1.654A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.75c-1.994 0-3.9-.535-5.573-1.544l-.4-.237-4.14 1.086 1.104-4.032-.26-.413A9.72 9.72 0 012.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75z"/>
+  </svg>
+  <span class="waf__texto">Escríbenos</span>
+</a>
+
+<style>
+  .waf {
+    position: fixed;
+    right: clamp(14px, 3vw, 26px);
+    bottom: clamp(14px, 3vw, 26px);
+    z-index: 90;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    padding: 14px;
+    border-radius: 999px;
+
+    background: #1FA855;
+    color: #fff;
+    text-decoration: none;
+
+    box-shadow: 0 8px 26px rgba(31, 168, 85, .34), 0 2px 6px rgba(0, 0, 0, .16);
+    /* Curva de salida suave: el ancho y la sombra crecen juntos, sin salto. */
+    transition:
+      gap .34s cubic-bezier(.22, .78, .3, 1),
+      padding .34s cubic-bezier(.22, .78, .3, 1),
+      box-shadow .34s ease,
+      transform .34s cubic-bezier(.22, .78, .3, 1);
+  }
+
+  .waf svg { width: 26px; height: 26px; fill: currentColor; flex-shrink: 0; }
+
+  /* El texto se despliega desde cero: no aparece de golpe. */
+  .waf__texto {
+    display: inline-block;
+    max-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: var(--t-sm);
+    font-weight: 600;
+    opacity: 0;
+    transition:
+      max-width .34s cubic-bezier(.22, .78, .3, 1),
+      opacity .26s ease;
+  }
+
+  .waf:hover,
+  .waf:focus-visible {
+    gap: 10px;
+    padding-inline: 18px 22px;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(31, 168, 85, .42), 0 3px 8px rgba(0, 0, 0, .18);
+  }
+  .waf:hover .waf__texto,
+  .waf:focus-visible .waf__texto { max-width: 130px; opacity: 1; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .waf, .waf__texto { transition: none; }
+  }
+</style>
