@@ -3,6 +3,7 @@ import { hashIp } from './hash.js';
 import {
   insertarLead, insertarEvento, listarLeads, obtenerLead, actualizarLead, resumenLeads,
 } from './leads.js';
+import { getAllDataDesdeD1, listar, crear, editar, eliminar, publicar } from './contenido.js';
 
 export default {
   async fetch(request, env, ctx) {
@@ -12,7 +13,7 @@ export default {
 
     const corsHeaders = {
       'Access-Control-Allow-Origin': origin === allowed ? origin : allowed,
-      'Access-Control-Allow-Methods': 'GET, POST, PATCH, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       'Access-Control-Max-Age': '86400',
     };
@@ -28,13 +29,9 @@ export default {
       });
     }
 
+    // GAS solo se usa para la doble escritura de leads/eventos (transicion).
+    // getAllData y la API admin leen/escriben en D1 y no dependen de el.
     const gasUrl = env.GAS_WEBAPP_URL;
-    if (!gasUrl) {
-      return new Response(JSON.stringify({ error: 'GAS_WEBAPP_URL not configured' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders },
-      });
-    }
 
     try {
       if (url.pathname === '/api/getAllData' && request.method === 'GET') {
@@ -48,12 +45,10 @@ export default {
           return new Response(cached.body, { status: cached.status, headers });
         }
 
-        const target = gasUrl + '?action=getAllData';
-        const upstream = await fetch(target);
-        const body = await upstream.text();
-
-        const response = new Response(body, {
-          status: upstream.status,
+        // Cutover: el contenido se arma desde D1 (ver ADR 0002 y spec).
+        const data = await getAllDataDesdeD1(env.DB);
+        const response = new Response(JSON.stringify(data), {
+          status: 200,
           headers: {
             'Content-Type': 'application/json',
             'Cache-Control': 'public, max-age=300',
@@ -147,6 +142,25 @@ export default {
             return json({ error: r.error }, r.error === 'no existe' ? 404 : 400);
           }
         }
+
+        // Publicar: dispara el rebuild del sitio estatico.
+        if (url.pathname === '/api/admin/publicar' && request.method === 'POST') {
+          return json(await publicar(env));
+        }
+
+        // CRUD generico de contenido y parametros.
+        const rec = url.pathname.match(/^\/api\/admin\/(servicios|faq|testimonios|promociones|parametros)(?:\/(.+))?$/);
+        if (rec) {
+          const recurso = rec[1];
+          const pk = rec[2] ? decodeURIComponent(rec[2]) : null;
+          const usuario = request.headers.get('Cf-Access-Authenticated-User-Email') || 'token';
+          if (request.method === 'GET' && !pk) return json(await listar(env.DB, recurso));
+          if (request.method === 'POST' && !pk) return json(await crear(env.DB, recurso, await request.json(), usuario));
+          if (request.method === 'PATCH' && pk) return json(await editar(env.DB, recurso, pk, await request.json(), usuario));
+          if (request.method === 'DELETE' && pk) return json(await eliminar(env.DB, recurso, pk, usuario));
+          return json({ error: 'metodo no soportado' }, 405);
+        }
+
         return json({ error: 'ruta admin no encontrada' }, 404);
       }
 
