@@ -1,6 +1,16 @@
-﻿name = "asesorias-api-proxy"
+name = "asesorias-api-proxy"
 main = "src/index.js"
 compatibility_date = "2026-04-01"
+
+# La API admin se sirve tambien en asesoriasas.com/admin/api/*, que queda detras
+# de Cloudflare Access (protege /admin). Asi el panel es keyless: Access inyecta
+# el JWT y el Worker lo verifica. Los endpoints publicos siguen en workers.dev.
+# workers.dev sigue activo para los endpoints publicos (getAllData, lead, evento)
+# que el sitio consume; la ruta de zona anade la API admin detras de Access.
+workers_dev = true
+routes = [
+  { pattern = "asesoriasas.com/admin/api/*", zone_name = "asesoriasas.com" }
+]
 
 [vars]
 ALLOWED_ORIGIN = "https://asesoriasas.com"

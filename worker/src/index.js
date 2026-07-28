@@ -1,9 +1,9 @@
 ﻿import { tokenValido } from './auth.js';
+import { verificarAccess } from './access.js';
 import { hashIp } from './hash.js';
-import {
-  insertarLead, insertarEvento, listarLeads, obtenerLead, actualizarLead, resumenLeads,
-} from './leads.js';
-import { getAllDataDesdeD1, listar, crear, editar, eliminar, publicar } from './contenido.js';
+import { insertarLead, insertarEvento } from './leads.js';
+import { getAllDataDesdeD1 } from './contenido.js';
+import { manejarAdmin } from './admin.js';
 
 export default {
   async fetch(request, env, ctx) {
@@ -108,60 +108,31 @@ export default {
         return new Response(null, { status: 204, headers: corsHeaders });
       }
 
-      // --- API de administracion (Bearer ADMIN_TOKEN; Cloudflare Access es el candado final) ---
+      const json = (obj, status = 200) =>
+        new Response(JSON.stringify(obj), {
+          status, headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        });
+
+      // API admin via Cloudflare Access (sin clave): la ruta asesoriasas.com/admin/api/*
+      // pasa por Access, que inyecta el JWT. Se verifica y no se pide clave.
+      if (url.pathname.startsWith('/admin/api/')) {
+        const ident = await verificarAccess(
+          request.headers.get('Cf-Access-Jwt-Assertion'),
+          env.ACCESS_TEAM_DOMAIN || 'asesoriasas.cloudflareaccess.com'
+        );
+        if (!ident) return json({ error: 'no autorizado' }, 401);
+        const sub = url.pathname.slice('/admin/api/'.length);
+        return manejarAdmin(sub, url.searchParams, request, env, ident.email || 'access', json);
+      }
+
+      // API admin via Bearer token (respaldo temporal mientras se completa Access).
       if (url.pathname.startsWith('/api/admin/')) {
         if (!tokenValido(request.headers.get('Authorization'), env.ADMIN_TOKEN)) {
-          return new Response(JSON.stringify({ error: 'no autorizado' }), {
-            status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders },
-          });
+          return json({ error: 'no autorizado' }, 401);
         }
-        const json = (obj, status = 200) =>
-          new Response(JSON.stringify(obj), {
-            status, headers: { 'Content-Type': 'application/json', ...corsHeaders },
-          });
-
-        if (url.pathname === '/api/admin/resumen' && request.method === 'GET') {
-          return json(await resumenLeads(env.DB));
-        }
-        if (url.pathname === '/api/admin/leads' && request.method === 'GET') {
-          const p = Object.fromEntries(url.searchParams);
-          return json(await listarLeads(env.DB, p));
-        }
-        const m = url.pathname.match(/^\/api\/admin\/leads\/(\d+)$/);
-        if (m) {
-          const id = Number(m[1]);
-          if (request.method === 'GET') {
-            const lead = await obtenerLead(env.DB, id);
-            return lead ? json(lead) : json({ error: 'no existe' }, 404);
-          }
-          if (request.method === 'PATCH') {
-            const cambios = JSON.parse(await request.text());
-            const usuario = request.headers.get('Cf-Access-Authenticated-User-Email') || 'token';
-            const r = await actualizarLead(env.DB, id, cambios, usuario);
-            if (r.ok) return json({ ok: true });
-            return json({ error: r.error }, r.error === 'no existe' ? 404 : 400);
-          }
-        }
-
-        // Publicar: dispara el rebuild del sitio estatico.
-        if (url.pathname === '/api/admin/publicar' && request.method === 'POST') {
-          return json(await publicar(env));
-        }
-
-        // CRUD generico de contenido y parametros.
-        const rec = url.pathname.match(/^\/api\/admin\/(servicios|faq|testimonios|promociones|parametros)(?:\/(.+))?$/);
-        if (rec) {
-          const recurso = rec[1];
-          const pk = rec[2] ? decodeURIComponent(rec[2]) : null;
-          const usuario = request.headers.get('Cf-Access-Authenticated-User-Email') || 'token';
-          if (request.method === 'GET' && !pk) return json(await listar(env.DB, recurso));
-          if (request.method === 'POST' && !pk) return json(await crear(env.DB, recurso, await request.json(), usuario));
-          if (request.method === 'PATCH' && pk) return json(await editar(env.DB, recurso, pk, await request.json(), usuario));
-          if (request.method === 'DELETE' && pk) return json(await eliminar(env.DB, recurso, pk, usuario));
-          return json({ error: 'metodo no soportado' }, 405);
-        }
-
-        return json({ error: 'ruta admin no encontrada' }, 404);
+        const sub = url.pathname.slice('/api/admin/'.length);
+        const usuario = request.headers.get('Cf-Access-Authenticated-User-Email') || 'token';
+        return manejarAdmin(sub, url.searchParams, request, env, usuario, json);
       }
 
       return new Response(JSON.stringify({ error: 'route not found' }), {
