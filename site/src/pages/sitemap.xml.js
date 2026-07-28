@@ -9,6 +9,7 @@ export async function GET() {
     { loc: `${base}/`, prioridad: '1.0' },
     { loc: `${base}/servicios/`, prioridad: '0.9' },
     ...SERVICIOS.map((s) => ({ loc: `${base}/servicios/${s.slug}/`, prioridad: '0.8' })),
+    { loc: `${base}/herramientas/calculadora-aportes/`, prioridad: '0.9' },
     { loc: `${base}/legal/politica-de-datos/`, prioridad: '0.3' },
     { loc: `${base}/legal/terminos/`, prioridad: '0.3' },
   ];

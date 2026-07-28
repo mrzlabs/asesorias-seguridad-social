@@ -1,0 +1,207 @@
+---
+import Base from '../../layouts/Base.astro';
+import Calculadora from '../../componentes/Calculadora.astro';
+import FormularioLead from '../../componentes/FormularioLead.astro';
+import BotonWhatsApp from '../../componentes/BotonWhatsApp.astro';
+import { obtenerParametros } from '../../datos/parametros.js';
+import { obtenerContenido } from '../../datos/api.js';
+
+const p = await obtenerParametros();
+const datos = await obtenerContenido();
+const faq = (datos.faq || []).filter(
+  (f) => f.activo && ['regulacion', 'requisitos'].includes(f.categoria)
+).slice(0, 5);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebApplication',
+      name: 'Calculadora de aportes a seguridad social',
+      applicationCategory: 'FinanceApplication',
+      operatingSystem: 'Web',
+      description:
+        'Calcula cuánto debes pagar a salud, pensión, ARL y caja de compensación como trabajador independiente en Colombia.',
+      url: 'https://asesoriasas.com/herramientas/calculadora-aportes/',
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'COP' },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://asesoriasas.com/' },
+        { '@type': 'ListItem', position: 2, name: 'Herramientas', item: 'https://asesoriasas.com/herramientas/' },
+        { '@type': 'ListItem', position: 3, name: 'Calculadora de aportes' },
+      ],
+    },
+    ...(faq.length
+      ? [{
+          '@type': 'FAQPage',
+          mainEntity: faq.map((f) => ({
+            '@type': 'Question',
+            name: f.pregunta,
+            acceptedAnswer: { '@type': 'Answer', text: f.respuesta },
+          })),
+        }]
+      : []),
+  ],
+};
+---
+<Base
+  titulo="Calculadora de aportes a seguridad social 2026 | Asesorías SAS"
+  descripcion="Calcula gratis cuánto pagas de salud, pensión, ARL y caja como independiente en Colombia. IBC, porcentajes y total mensual, sin registro."
+  ruta="/herramientas/calculadora-aportes/"
+  jsonLd={jsonLd}
+>
+  <section class="h-portada">
+    <div class="contenedor">
+      <nav class="miga" aria-label="Ruta de navegación">
+        <a href="/">Inicio</a> <span aria-hidden="true">/</span>
+        <span aria-current="page">Calculadora de aportes</span>
+      </nav>
+      <h1>¿Cuánto debo pagar de seguridad social?</h1>
+      <p class="entrada">
+        Calcula tu Ingreso Base de Cotización y lo que aportas cada mes a salud,
+        pensión, ARL y caja. Gratis y sin registrarte.
+      </p>
+    </div>
+  </section>
+
+  <section class="seccion">
+    <div class="contenedor">
+      <Calculadora p={p} />
+    </div>
+  </section>
+
+  <section class="seccion explica">
+    <div class="contenedor">
+      <h2>Cómo se calcula</h2>
+      <div class="explica__cols">
+        <article>
+          <h3>El IBC</h3>
+          <p>
+            Es la base sobre la que se liquidan todos los aportes. Si eres
+            contratista por prestación de servicios, equivale al <strong>40% de
+            tus ingresos brutos</strong>. Nunca puede ser menor a un salario
+            mínimo ni mayor a veinticinco.
+          </p>
+        </article>
+        <article>
+          <h3>Los porcentajes</h3>
+          <p>
+            Sobre el IBC se aporta <strong>12,5% a salud</strong> y
+            <strong>16% a pensión</strong>. La ARL depende de la clase de riesgo
+            de tu actividad y va del 0,522% al 6,96%. La caja de compensación es
+            voluntaria y cuesta un 2% adicional.
+          </p>
+        </article>
+        <article>
+          <h3>El fondo de solidaridad</h3>
+          <p>
+            Si tu IBC supera los cuatro salarios mínimos, se suma un aporte
+            adicional que empieza en el 1% y crece por tramos hasta el 2%.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="seccion h-cta" id="contacto">
+    <div class="contenedor h-cta__in">
+      <div>
+        <h2>Ya sabes cuánto. ¿Te lo gestionamos?</h2>
+        <p class="h-cta__txt">
+          El cálculo resuelve el cuánto. Queda el resto: qué EPS te conviene, qué
+          pasa si te atrasas y cuánto cuesta que nos encarguemos del trámite y de
+          tu planilla cada mes.
+        </p>
+        <p class="h-cta__txt">
+          Déjanos tus datos con el cálculo que acabas de hacer y te enviamos la
+          cotización.
+        </p>
+        <BotonWhatsApp variante="contorno" mensaje="Hola, usé la calculadora y quiero cotizar">
+          Preguntar por WhatsApp
+        </BotonWhatsApp>
+      </div>
+      <FormularioLead servicioPreseleccionado="planilla-pila" />
+    </div>
+  </section>
+
+  {faq.length > 0 && (
+    <section class="seccion">
+      <div class="contenedor">
+        <h2>Dudas frecuentes sobre los aportes</h2>
+        <div class="acordeon">
+          {faq.map((f) => (
+            <details>
+              <summary>{f.pregunta}</summary>
+              <p>{f.respuesta}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+</Base>
+
+<style>
+  .h-portada {
+    background: var(--azul-tinta);
+    color: var(--papel);
+    padding-block: var(--e-8) var(--e-12);
+    position: relative;
+    isolation: isolate;
+  }
+  .h-portada::before {
+    content: '';
+    position: absolute; inset: 0; z-index: -2; pointer-events: none;
+    background: radial-gradient(120% 90% at 88% -10%, rgba(217,180,73,.13) 0%, transparent 58%);
+  }
+  .miga { font-size: var(--t-xs); color: rgba(245,241,232,.55); margin-bottom: var(--e-6); }
+  .miga a { color: rgba(245,241,232,.78); text-decoration: none; }
+  .h-portada h1 { max-width: 20ch; text-shadow: 0 1px 2px rgba(4,16,32,.32); }
+  .entrada {
+    font-size: var(--t-lg);
+    color: rgba(245,241,232,.78);
+    max-width: 54ch;
+    margin-top: var(--e-4);
+  }
+
+  .explica { background: var(--papel-puro); }
+  .explica__cols {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--e-8);
+    margin-top: var(--e-6);
+  }
+  .explica h3 { font-size: var(--t-md); margin-bottom: var(--e-2); }
+  .explica p { font-size: var(--t-sm); color: var(--tinta-suave); }
+
+  .h-cta { background: var(--azul-tinta); color: var(--papel); }
+  .h-cta__in {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap: var(--e-12);
+    align-items: start;
+  }
+  .h-cta__txt {
+    font-size: var(--t-sm);
+    color: rgba(245,241,232,.76);
+    max-width: 44ch;
+    margin-block: var(--e-3);
+  }
+
+  .acordeon { margin-top: var(--e-6); max-width: 760px; }
+  .acordeon details { border-bottom: 1px solid var(--linea); padding-block: var(--e-4); }
+  .acordeon summary {
+    font-weight: 600; font-size: var(--t-sm); cursor: pointer;
+    list-style: none; display: flex; justify-content: space-between; gap: var(--e-4);
+  }
+  .acordeon summary::-webkit-details-marker { display: none; }
+  .acordeon summary::after { content: '+'; color: var(--dorado); font-size: 1.3em; line-height: 1; }
+  .acordeon details[open] summary::after { content: '−'; }
+  .acordeon details p { margin-top: var(--e-3); font-size: var(--t-sm); color: var(--tinta-suave); }
+
+  @media (max-width: 860px) {
+    .h-cta__in { grid-template-columns: 1fr; gap: var(--e-8); }
+  }
+</style>

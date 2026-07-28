@@ -1,0 +1,270 @@
+---
+// Calculadora de aportes. Tiempo 1: abierto, sin pedir nada. El usuario
+// obtiene su aporte de ley completo antes de que se le pida contacto.
+const { p } = Astro.props;
+---
+<div class="calc" data-p={JSON.stringify(p)}>
+  <form class="calc__form" id="calcForm" novalidate>
+    <div class="calc__campo">
+      <label for="c-tipo">Tu situación</label>
+      <select id="c-tipo">
+        <option value="contratista">Contratista por prestación de servicios</option>
+        <option value="cuenta-propia">Independiente por cuenta propia</option>
+      </select>
+      <p class="calc__ayuda" id="c-ayuda">
+        El IBC se calcula sobre el 40% de tus ingresos brutos.
+      </p>
+    </div>
+
+    <div class="calc__campo">
+      <label for="c-ingreso">Ingreso mensual bruto</label>
+      <div class="calc__moneda">
+        <span aria-hidden="true">$</span>
+        <input
+          type="text" id="c-ingreso" inputmode="numeric"
+          value="3.000.000" autocomplete="off"
+        />
+      </div>
+    </div>
+
+    <div class="calc__campo">
+      <label for="c-riesgo">Clase de riesgo ARL</label>
+      <select id="c-riesgo">
+        <option value="1">I — Oficina, actividades administrativas</option>
+        <option value="2">II — Comercio, algunas labores manuales</option>
+        <option value="3">III — Manufactura, transporte liviano</option>
+        <option value="4">IV — Construcción, transporte pesado</option>
+        <option value="5">V — Alturas, minería, alto riesgo</option>
+      </select>
+    </div>
+
+    <div class="calc__check">
+      <input type="checkbox" id="c-caja" />
+      <label for="c-caja">Incluir caja de compensación (voluntaria)</label>
+    </div>
+  </form>
+
+  <div class="calc__salida" aria-live="polite">
+    <div class="calc__ibc">
+      <span class="calc__ibc-lbl">Tu IBC</span>
+      <strong id="c-ibc">$0</strong>
+      <span class="calc__ibc-nota" id="c-ibc-nota"></span>
+    </div>
+
+    <ul class="calc__lineas">
+      <li><span>Salud <em id="c-p-salud"></em></span><strong id="c-salud">$0</strong></li>
+      <li><span>Pensión <em id="c-p-pension"></em></span><strong id="c-pension">$0</strong></li>
+      <li><span>ARL <em id="c-p-arl"></em></span><strong id="c-arl">$0</strong></li>
+      <li id="c-li-fsp" hidden><span>Fondo de solidaridad <em id="c-p-fsp"></em></span><strong id="c-fsp">$0</strong></li>
+      <li id="c-li-caja" hidden><span>Caja de compensación <em id="c-p-caja"></em></span><strong id="c-caja-v">$0</strong></li>
+    </ul>
+
+    <div class="calc__total">
+      <span>Total mensual</span>
+      <strong id="c-total">$0</strong>
+    </div>
+
+    <p class="calc__aviso">
+      Cálculo orientativo según la normativa vigente. El valor definitivo lo
+      liquida cada entidad. <span id="c-fuente"></span>
+    </p>
+  </div>
+</div>
+
+<script>
+  const raiz = document.querySelector('.calc');
+  if (raiz) {
+    const P = JSON.parse(raiz.dataset.p);
+    const $ = (id) => document.getElementById(id);
+
+    const pesos = new Intl.NumberFormat('es-CO', {
+      style: 'currency', currency: 'COP', maximumFractionDigits: 0,
+    });
+    const pct = (n) => (n * 100).toFixed(n * 100 % 1 === 0 ? 0 : 3).replace('.', ',') + '%';
+
+    function leerIngreso() {
+      return Number(($('c-ingreso').value || '').replace(/\D/g, '')) || 0;
+    }
+
+    function formatearCampo() {
+      const n = leerIngreso();
+      $('c-ingreso').value = n ? n.toLocaleString('es-CO') : '';
+    }
+
+    function tasaFsp(ibcEnSmlmv) {
+      const tramo = P.escalaFsp.find((t) => ibcEnSmlmv >= t.desde && ibcEnSmlmv < t.hasta);
+      return tramo ? tramo.tasa : 0;
+    }
+
+    function calcular() {
+      const ingreso = leerIngreso();
+      const tipo = $('c-tipo').value;
+      const clase = $('c-riesgo').value;
+      const conCaja = $('c-caja').checked;
+
+      // El IBC de un contratista es el 40% del ingreso bruto; el de un
+      // independiente por cuenta propia parte del ingreso neto declarado.
+      const base = tipo === 'contratista' ? ingreso * P.ibc_porcentaje_contratista : ingreso;
+
+      const minimo = P.smlmv * P.ibc_minimo_smlmv;
+      const maximo = P.smlmv * P.ibc_maximo_smlmv;
+      let ibc = base;
+      let nota = '';
+      if (ibc < minimo) { ibc = minimo; nota = 'Ajustado al mínimo de 1 salario mínimo'; }
+      else if (ibc > maximo) { ibc = maximo; nota = 'Ajustado al tope de 25 salarios mínimos'; }
+
+      const salud = ibc * P.tasa_salud;
+      const pension = ibc * P.tasa_pension;
+      const tasaArl = P['arl_clase_' + clase];
+      const arl = ibc * tasaArl;
+
+      const enSmlmv = ibc / P.smlmv;
+      const tFsp = enSmlmv >= P.fsp_umbral_smlmv ? tasaFsp(enSmlmv) : 0;
+      const fsp = ibc * tFsp;
+
+      const caja = conCaja ? ibc * P.tasa_ccf_independiente : 0;
+
+      const total = salud + pension + arl + fsp + caja;
+
+      $('c-ibc').textContent = pesos.format(ibc);
+      $('c-ibc-nota').textContent = nota;
+      $('c-salud').textContent = pesos.format(salud);
+      $('c-pension').textContent = pesos.format(pension);
+      $('c-arl').textContent = pesos.format(arl);
+      $('c-p-salud').textContent = pct(P.tasa_salud);
+      $('c-p-pension').textContent = pct(P.tasa_pension);
+      $('c-p-arl').textContent = pct(tasaArl);
+
+      $('c-li-fsp').hidden = fsp === 0;
+      $('c-fsp').textContent = pesos.format(fsp);
+      $('c-p-fsp').textContent = pct(tFsp);
+
+      $('c-li-caja').hidden = !conCaja;
+      $('c-caja-v').textContent = pesos.format(caja);
+      $('c-p-caja').textContent = pct(P.tasa_ccf_independiente);
+
+      $('c-total').textContent = pesos.format(total);
+      $('c-fuente').textContent = 'Salario mínimo usado: ' + pesos.format(P.smlmv) + '.';
+
+      // Guarda el resultado para adjuntarlo al lead.
+      raiz.dataset.resultado = JSON.stringify({
+        ingreso, tipo, clase_riesgo: clase, con_caja: conCaja,
+        ibc: Math.round(ibc), total: Math.round(total),
+      });
+    }
+
+    $('c-tipo').addEventListener('change', () => {
+      $('c-ayuda').textContent = $('c-tipo').value === 'contratista'
+        ? 'El IBC se calcula sobre el 40% de tus ingresos brutos.'
+        : 'El IBC parte de tus ingresos netos, una vez descontados los costos.';
+      calcular();
+    });
+    $('c-ingreso').addEventListener('input', calcular);
+    $('c-ingreso').addEventListener('blur', () => { formatearCampo(); calcular(); });
+    $('c-riesgo').addEventListener('change', calcular);
+    $('c-caja').addEventListener('change', calcular);
+
+    calcular();
+  }
+</script>
+
+<style>
+  .calc {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--e-8);
+    align-items: start;
+  }
+
+  .calc__form { display: grid; gap: var(--e-4); }
+  .calc__campo { display: grid; gap: var(--e-1); }
+  .calc__campo label,
+  .calc__check label { font-size: var(--t-xs); font-weight: 600; }
+
+  .calc select,
+  .calc input[type="text"] {
+    font-family: var(--fuente-texto);
+    font-size: var(--t-sm);
+    color: var(--tinta);
+    background: var(--papel-puro);
+    border: 1px solid var(--linea);
+    border-radius: var(--radio);
+    padding: 10px 12px;
+    width: 100%;
+    transition: border-color .2s ease, box-shadow .2s ease;
+  }
+  .calc select:focus,
+  .calc input:focus {
+    outline: none;
+    border-color: var(--azul-medio);
+    box-shadow: 0 0 0 3px rgba(27, 59, 111, .13);
+  }
+
+  .calc__moneda { position: relative; }
+  .calc__moneda span {
+    position: absolute;
+    left: 12px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--tinta-tenue);
+    font-size: var(--t-sm);
+  }
+  .calc__moneda input { padding-left: 26px; font-variant-numeric: tabular-nums; }
+
+  .calc__ayuda { font-size: var(--t-xs); color: var(--tinta-tenue); margin: 0; }
+
+  .calc__check { display: flex; align-items: center; gap: var(--e-2); }
+  .calc__check input { width: auto; accent-color: var(--azul-tinta); }
+  .calc__check label { font-weight: 400; color: var(--tinta-suave); cursor: pointer; }
+
+  .calc__salida {
+    background: var(--azul-tinta);
+    color: var(--papel);
+    border-radius: var(--radio-lg);
+    padding: var(--e-8) var(--e-6);
+    display: grid;
+    gap: var(--e-4);
+  }
+
+  .calc__ibc { display: grid; gap: 2px; padding-bottom: var(--e-4); border-bottom: 1px solid rgba(245,241,232,.14); }
+  .calc__ibc-lbl { font-size: var(--t-xs); letter-spacing: .08em; text-transform: uppercase; color: var(--dorado-claro); }
+  .calc__ibc strong {
+    font-family: var(--fuente-titulo);
+    font-size: var(--t-xl);
+    font-variant-numeric: tabular-nums;
+  }
+  .calc__ibc-nota { font-size: var(--t-xs); color: rgba(245,241,232,.55); }
+
+  .calc__lineas { list-style: none; display: grid; gap: var(--e-2); margin: 0; }
+  .calc__lineas li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--e-4);
+    font-size: var(--t-sm);
+    color: rgba(245,241,232,.82);
+  }
+  .calc__lineas em { font-style: normal; color: rgba(245,241,232,.42); font-size: var(--t-xs); }
+  .calc__lineas strong { font-variant-numeric: tabular-nums; font-weight: 500; }
+
+  .calc__total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--e-4);
+    padding-top: var(--e-4);
+    border-top: 1px solid rgba(245,241,232,.14);
+  }
+  .calc__total span { font-size: var(--t-sm); font-weight: 600; }
+  .calc__total strong {
+    font-family: var(--fuente-titulo);
+    font-size: var(--t-xl);
+    color: var(--dorado-claro);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .calc__aviso { font-size: var(--t-xs); color: rgba(245,241,232,.5); margin: 0; line-height: 1.55; }
+
+  @media (max-width: 820px) {
+    .calc { grid-template-columns: 1fr; gap: var(--e-6); }
+  }
+</style>
