@@ -13,9 +13,13 @@ import { obtenerContenido } from './api.js';
  */
 
 const PREDETERMINADOS = {
-  // Salario minimo mensual legal vigente. VERIFICAR CADA ENERO.
-  smlmv: 1623500,
-  // Auxilio de transporte, informativo.
+  // Salario minimo mensual legal vigente 2026, confirmado por el negocio.
+  // VERIFICAR CADA ENERO: la clave `smlmv` en la hoja lo sobreescribe sin
+  // necesidad de tocar codigo.
+  smlmv: 1750905,
+  // Auxilio de transporte 2026. No entra en el IBC del independiente;
+  // se conserva como referencia.
+  auxilio_transporte: 249095,
   ibc_porcentaje_contratista: 0.4,
   ibc_minimo_smlmv: 1,
   ibc_maximo_smlmv: 25,
