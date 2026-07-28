@@ -320,3 +320,29 @@ describe('Cumplimiento legal', () => {
     assert.match(xml, /\/legal\/terminos\//);
   });
 });
+
+describe('Configuración de despliegue', () => {
+  test('las cabeceras de seguridad viajan en el build', async () => {
+    const h = await leer('_headers');
+    for (const cabecera of [
+      'X-Frame-Options',
+      'X-Content-Type-Options',
+      'Referrer-Policy',
+      'Permissions-Policy',
+      'Strict-Transport-Security',
+    ]) {
+      assert.ok(h.includes(cabecera), `falta la cabecera ${cabecera}`);
+    }
+  });
+
+  test('los recursos con hash tienen caché inmutable', async () => {
+    const h = await leer('_headers');
+    assert.match(h, /\/_astro\/\*/);
+    assert.match(h, /immutable/);
+  });
+
+  test('robots y sitemap salen en el build', async () => {
+    assert.ok(await existe('robots.txt'));
+    assert.ok(await existe('sitemap.xml'));
+  });
+});
