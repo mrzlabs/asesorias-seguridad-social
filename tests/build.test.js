@@ -346,3 +346,39 @@ describe('Configuración de despliegue', () => {
     assert.ok(await existe('sitemap.xml'));
   });
 });
+
+describe('Herramientas y blog', () => {
+  test('la calculadora existe y no depende de JavaScript para su contenido', async () => {
+    const html = await leer('herramientas/calculadora-aportes/index.html');
+    assert.match(html, /Ingreso Base de Cotizaci/);
+    assert.match(html, /c-ibc/);
+  });
+
+  test('la calculadora declara los parámetros, no los esconde', async () => {
+    const html = await leer('herramientas/calculadora-aportes/index.html');
+    assert.match(html, /data-p="/, 'los parámetros no viajan en el HTML');
+    assert.match(html, /smlmv/);
+  });
+
+  test('el blog tiene índice y al menos un artículo', async () => {
+    assert.ok(await existe('blog/index.html'));
+    const idx = await leer('blog/index.html');
+    assert.doesNotMatch(idx, /Aún no hay artículos/, 'el blog está vacío');
+  });
+
+  test('cada artículo lleva marcado Article y BreadcrumbList', async () => {
+    const html = await leer('blog/cuanto-se-paga-de-seguridad-social-independiente/index.html');
+    const m = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+    assert.ok(m, 'el artículo no tiene JSON-LD');
+    const tipos = JSON.parse(m[1])['@graph'].map((n) => n['@type']);
+    assert.ok(tipos.includes('Article'));
+    assert.ok(tipos.includes('BreadcrumbList'));
+  });
+
+  test('el sitemap incluye la calculadora, el blog y los artículos', async () => {
+    const xml = await leer('sitemap.xml');
+    assert.match(xml, /\/herramientas\/calculadora-aportes\//);
+    assert.match(xml, /\/blog\//);
+    assert.match(xml, /\/blog\/cuanto-se-paga/);
+  });
+});

@@ -1,7 +1,9 @@
 import { obtenerServicios } from '../datos/servicios.js';
+import { getCollection } from 'astro:content';
 
 export async function GET() {
   const SERVICIOS = await obtenerServicios();
+  const ARTICULOS = (await getCollection('blog')).filter((a) => !a.data.borrador);
   const base = 'https://asesoriasas.com';
   const hoy = new Date().toISOString().slice(0, 10);
 
@@ -10,6 +12,8 @@ export async function GET() {
     { loc: `${base}/servicios/`, prioridad: '0.9' },
     ...SERVICIOS.map((s) => ({ loc: `${base}/servicios/${s.slug}/`, prioridad: '0.8' })),
     { loc: `${base}/herramientas/calculadora-aportes/`, prioridad: '0.9' },
+    { loc: `${base}/blog/`, prioridad: '0.7' },
+    ...ARTICULOS.map((a) => ({ loc: `${base}/blog/${a.id}/`, prioridad: '0.7' })),
     { loc: `${base}/legal/politica-de-datos/`, prioridad: '0.3' },
     { loc: `${base}/legal/terminos/`, prioridad: '0.3' },
   ];

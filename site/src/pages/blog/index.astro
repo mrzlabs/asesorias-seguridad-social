@@ -1,0 +1,102 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+
+const articulos = (await getCollection('blog'))
+  .filter((a) => !a.data.borrador)
+  .sort((a, b) => b.data.fecha - a.data.fecha);
+
+const fecha = (f) =>
+  new Intl.DateTimeFormat('es-CO', { day: 'numeric', month: 'short', year: 'numeric' }).format(f);
+---
+<Base
+  titulo="Blog sobre seguridad social en Colombia | Asesorías SAS"
+  descripcion="Guías claras sobre aportes, afiliaciones, traslados y normativa de seguridad social para trabajadores independientes y empresas en Colombia."
+  ruta="/blog/"
+>
+  <section class="blog-cab">
+    <div class="contenedor">
+      <h1>Blog</h1>
+      <p class="entrada">
+        Explicamos sin rodeos cómo funciona la seguridad social en Colombia:
+        cuánto se paga, qué exige la norma y qué pasa si algo sale mal.
+      </p>
+    </div>
+  </section>
+
+  <section class="seccion">
+    <div class="contenedor">
+      {articulos.length === 0 ? (
+        <p class="blog-vacio">Aún no hay artículos publicados.</p>
+      ) : (
+        <ul class="blog-lista aparece aparece--escalonado">
+          {articulos.map((a) => (
+            <li>
+              <a href={`/blog/${a.id}/`}>
+                <span class="blog-cat">{a.data.categoria}</span>
+                <h2>{a.data.titulo}</h2>
+                <p>{a.data.descripcion}</p>
+                <time datetime={a.data.fecha.toISOString()}>{fecha(a.data.fecha)}</time>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .blog-cab {
+    background: var(--azul-tinta);
+    color: var(--papel);
+    padding-block: var(--e-12) var(--e-16);
+  }
+  .entrada {
+    font-size: var(--t-lg);
+    color: rgba(245,241,232,.78);
+    max-width: 54ch;
+    margin-top: var(--e-4);
+  }
+
+  .blog-lista { list-style: none; display: grid; gap: var(--e-4); }
+  .blog-lista a {
+    position: relative;
+    display: grid;
+    gap: var(--e-2);
+    padding: var(--e-8) var(--e-6);
+    background: var(--papel-puro);
+    border: 1px solid var(--linea);
+    border-radius: var(--radio-lg);
+    text-decoration: none;
+    overflow: hidden;
+    transition:
+      transform .4s cubic-bezier(.22,.78,.3,1),
+      border-color .3s ease,
+      box-shadow .4s cubic-bezier(.22,.78,.3,1);
+  }
+  .blog-lista a::before {
+    content: '';
+    position: absolute; inset: 0 auto 0 0; width: 3px;
+    background: var(--dorado);
+    transform: scaleY(0); transform-origin: top;
+    transition: transform .42s cubic-bezier(.22,.78,.3,1);
+  }
+  .blog-lista a:hover {
+    transform: translateY(-3px);
+    border-color: var(--dorado);
+    box-shadow: 0 14px 32px rgba(11,37,69,.12);
+  }
+  .blog-lista a:hover::before { transform: scaleY(1); }
+
+  .blog-cat {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: .08em; text-transform: uppercase;
+    color: var(--tinta-tenue);
+  }
+  .blog-lista h2 { font-size: var(--t-lg); }
+  .blog-lista p { font-size: var(--t-sm); color: var(--tinta-suave); }
+  .blog-lista time { font-size: var(--t-xs); color: var(--tinta-tenue); }
+
+  .blog-vacio { color: var(--tinta-suave); }
+</style>
