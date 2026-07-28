@@ -1,0 +1,64 @@
+---
+// Panel interno de gestion de leads. No indexable.
+// Proteccion: Cloudflare Access (candado exterior) + Bearer token en la API.
+const API = 'https://asesorias-api-proxy.andresmartinezr2204.workers.dev/api';
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Panel · Leads</title>
+    <style>
+      :root { color-scheme: light dark; --linea: #d8d2c4; --acento: #1f3a5f; }
+      * { box-sizing: border-box; }
+      body { font: 15px/1.5 system-ui, sans-serif; margin: 0; padding: 1.5rem; max-width: 1100px; }
+      h1 { font-size: 1.4rem; }
+      #gate { max-width: 320px; }
+      #gate label { display: block; margin: 1rem 0 .5rem; }
+      input, select, textarea, button { font: inherit; padding: .5rem; }
+      input, select, textarea { width: 100%; border: 1px solid var(--linea); border-radius: 6px; }
+      button { background: var(--acento); color: #fff; border: 0; border-radius: 6px; cursor: pointer; padding: .5rem 1rem; }
+      #kpis { padding: .75rem 0; color: #555; border-bottom: 1px solid var(--linea); margin-bottom: 1rem; }
+      #filtros { display: flex; gap: .75rem; margin-bottom: 1rem; }
+      #filtros input { flex: 1; }
+      #filtros select { width: auto; }
+      table { width: 100%; border-collapse: collapse; }
+      th, td { text-align: left; padding: .5rem .6rem; border-bottom: 1px solid var(--linea); }
+      tbody tr { cursor: pointer; }
+      tbody tr:hover { background: rgba(31, 58, 95, .06); }
+      #detalle { position: fixed; top: 0; right: 0; width: min(420px, 100%); height: 100%;
+        overflow: auto; background: Canvas; border-left: 1px solid var(--linea);
+        padding: 1.5rem; box-shadow: -8px 0 24px rgba(0,0,0,.12); }
+      #detalle label { display: block; margin: .75rem 0 .25rem; }
+      #detalle textarea { min-height: 4rem; }
+      [role="alert"] { color: #b00020; }
+    </style>
+  </head>
+  <body>
+    <main id="panel" data-api={API}>
+      <section id="gate" hidden>
+        <h1>Panel de leads</h1>
+        <label>Clave de acceso <input id="clave" type="password" autocomplete="off" /></label>
+        <button id="entrar">Entrar</button>
+        <p id="gate-error" role="alert"></p>
+      </section>
+      <section id="app" hidden>
+        <header id="kpis"></header>
+        <div id="filtros">
+          <input id="q" placeholder="Buscar nombre, teléfono o email" />
+          <select id="f-estado"><option value="">Todos los estados</option></select>
+        </div>
+        <table>
+          <thead><tr>
+            <th>Nombre</th><th>Teléfono</th><th>Servicio</th><th>Origen</th><th>Estado</th><th>Fecha</th>
+          </tr></thead>
+          <tbody id="filas"></tbody>
+        </table>
+        <aside id="detalle" hidden></aside>
+      </section>
+    </main>
+    <script src="../../scripts/panel-leads.js"></script>
+  </body>
+</html>
