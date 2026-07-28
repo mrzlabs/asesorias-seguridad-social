@@ -4,7 +4,13 @@ import { RECURSOS, sqlInsert, sqlUpdate } from '../src/recursos.js';
 
 test('recursos conocidos', () => {
   assert.deepEqual(Object.keys(RECURSOS).sort(),
-    ['faq', 'parametros', 'promociones', 'servicios', 'testimonios']);
+    ['ciudades', 'eps', 'eps_ciudad', 'faq', 'parametros', 'promociones', 'servicios', 'testimonios']);
+});
+
+test('eps_ciudad solo acepta columnas whitelisted', () => {
+  const { sql, binds } = sqlInsert('eps_ciudad', { eps_slug: 'sura', ciudad_slug: 'bogota', maligno: 1 });
+  assert.match(sql, /INSERT INTO eps_ciudad \(eps_slug, ciudad_slug\) VALUES \(\?, \?\)/);
+  assert.deepEqual(binds, ['sura', 'bogota']);
 });
 
 test('sqlInsert solo usa columnas whitelisted', () => {

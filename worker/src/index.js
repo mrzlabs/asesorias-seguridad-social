@@ -3,6 +3,7 @@ import { verificarAccess } from './access.js';
 import { hashIp } from './hash.js';
 import { insertarLead, insertarEvento } from './leads.js';
 import { getAllDataDesdeD1 } from './contenido.js';
+import { getEpsData } from './eps.js';
 import { manejarAdmin } from './admin.js';
 
 export default {
@@ -47,6 +48,30 @@ export default {
 
         // Cutover: el contenido se arma desde D1 (ver ADR 0002 y spec).
         const data = await getAllDataDesdeD1(env.DB);
+        const response = new Response(JSON.stringify(data), {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'public, max-age=300',
+            'X-Cache': 'MISS',
+            ...corsHeaders,
+          },
+        });
+        ctx.waitUntil(cache.put(cacheKey, response.clone()));
+        return response;
+      }
+
+      if (url.pathname === '/api/eps' && request.method === 'GET') {
+        const cache = caches.default;
+        const cacheKey = new Request(url.toString(), request);
+        const cached = await cache.match(cacheKey);
+        if (cached) {
+          const headers = new Headers(cached.headers);
+          Object.entries(corsHeaders).forEach(([k, v]) => headers.set(k, v));
+          headers.set('X-Cache', 'HIT');
+          return new Response(cached.body, { status: cached.status, headers });
+        }
+        const data = await getEpsData(env.DB);
         const response = new Response(JSON.stringify(data), {
           status: 200,
           headers: {

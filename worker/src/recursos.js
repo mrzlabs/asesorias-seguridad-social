@@ -22,6 +22,18 @@ export const RECURSOS = {
     tabla: 'parametros', pk: 'clave',
     columnas: ['clave', 'valor', 'tipo', 'descripcion'],
   },
+  eps: {
+    tabla: 'eps', pk: 'slug',
+    columnas: ['slug', 'nombre', 'nombre_corto', 'tipo', 'sitio_web', 'telefono', 'logo', 'orden', 'activo'],
+  },
+  ciudades: {
+    tabla: 'ciudades', pk: 'slug',
+    columnas: ['slug', 'nombre', 'departamento', 'descripcion', 'publicada', 'activo'],
+  },
+  eps_ciudad: {
+    tabla: 'eps_ciudad', pk: 'id',
+    columnas: ['eps_slug', 'ciudad_slug', 'disponible', 'red_atencion', 'particularidades', 'fuente', 'verificado'],
+  },
 };
 
 function columnasValidas(recurso, datos) {
