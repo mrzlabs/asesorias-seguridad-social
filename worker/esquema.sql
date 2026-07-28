@@ -147,3 +147,46 @@ CREATE TABLE IF NOT EXISTS auditoria (
 );
 
 CREATE INDEX IF NOT EXISTS idx_auditoria_creado ON auditoria(creado DESC);
+
+-- ---------------------------------------------------------------
+-- Comparador de EPS por ciudad (Fase 4). Ver ADR/diseno del comparador.
+-- Ninguna ciudad se publica hasta que el negocio verifique sus datos.
+-- ---------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS eps (
+  slug         TEXT    PRIMARY KEY,
+  nombre       TEXT    NOT NULL,
+  nombre_corto TEXT,
+  tipo         TEXT    NOT NULL DEFAULT 'contributivo'
+                       CHECK (tipo IN ('contributivo','subsidiado','ambos')),
+  sitio_web    TEXT,
+  telefono     TEXT,
+  logo         TEXT,
+  orden        INTEGER DEFAULT 0,
+  activo       INTEGER NOT NULL DEFAULT 1 CHECK (activo IN (0,1))
+);
+
+CREATE TABLE IF NOT EXISTS ciudades (
+  slug         TEXT    PRIMARY KEY,
+  nombre       TEXT    NOT NULL,
+  departamento TEXT,
+  descripcion  TEXT,                       -- intro unica, contenido diferenciador
+  publicada    INTEGER NOT NULL DEFAULT 0 CHECK (publicada IN (0,1)),
+  activo       INTEGER NOT NULL DEFAULT 1 CHECK (activo IN (0,1)),
+  actualizado  TEXT
+);
+
+CREATE TABLE IF NOT EXISTS eps_ciudad (
+  id               INTEGER PRIMARY KEY AUTOINCREMENT,
+  eps_slug         TEXT    NOT NULL REFERENCES eps(slug) ON DELETE CASCADE,
+  ciudad_slug      TEXT    NOT NULL REFERENCES ciudades(slug) ON DELETE CASCADE,
+  disponible       INTEGER NOT NULL DEFAULT 1 CHECK (disponible IN (0,1)),
+  red_atencion     TEXT,
+  particularidades TEXT,
+  fuente           TEXT,                    -- URL para auditar el dato
+  verificado       INTEGER NOT NULL DEFAULT 0 CHECK (verificado IN (0,1)),
+  actualizado      TEXT,
+  UNIQUE (eps_slug, ciudad_slug)
+);
+
+CREATE INDEX IF NOT EXISTS idx_epsciudad_ciudad ON eps_ciudad(ciudad_slug);
+CREATE INDEX IF NOT EXISTS idx_epsciudad_eps    ON eps_ciudad(eps_slug);
