@@ -1,0 +1,35 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout titulo="EPS y ciudades" activo="eps">
+  <div class="cabecera"><h1>EPS y ciudades</h1></div>
+  <p class="sub">Gestiona el catálogo de EPS, las ciudades del comparador y qué EPS operan en cada una. Una ciudad <strong>solo aparece en el sitio</strong> si la marcas <em>Publicada</em> y pulsas Publicar.</p>
+
+  <div class="secc-tabs">
+    <button data-s="catalogo" class="on">Catálogo de EPS</button>
+    <button data-s="ciudades">Ciudades</button>
+    <button data-s="cobertura">Cobertura por ciudad</button>
+  </div>
+
+  <section id="s-catalogo"></section>
+  <section id="s-ciudades" hidden></section>
+  <section id="s-cobertura" hidden>
+    <div class="tarjeta">
+      <label class="et" for="sel-ciudad">Elige una ciudad</label>
+      <select id="sel-ciudad"><option value="">—</option></select>
+    </div>
+    <div id="cobertura-lista"></div>
+  </section>
+
+  <style>
+    .secc-tabs { display: inline-flex; background: #ece5d6; border-radius: 10px; padding: 4px; gap: 2px; margin-bottom: 1.1rem; flex-wrap: wrap; }
+    .secc-tabs button { border: 0; background: transparent; color: var(--muted); font: 600 .9rem var(--sans); padding: .45rem .9rem; border-radius: 7px; cursor: pointer; }
+    .secc-tabs button.on { background: var(--card); color: var(--navy); box-shadow: var(--sombra); }
+    .cob-eps { display: grid; grid-template-columns: 180px 1fr; gap: .8rem; align-items: start; padding: .7rem 0; border-bottom: 1px solid var(--line); }
+    .cob-eps:last-child { border-bottom: 0; }
+    .cob-eps .nom { font-weight: 600; }
+    .verif { font-size: .75rem; color: var(--ok); }
+    @media (max-width: 620px) { .cob-eps { grid-template-columns: 1fr; } }
+  </style>
+  <script src="../../scripts/panel-eps.js"></script>
+</AdminLayout>
