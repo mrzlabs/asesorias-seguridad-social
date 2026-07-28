@@ -1,4 +1,4 @@
-const ORIGEN = 'https://asesorias-api-proxy.andresmartinezr2204.workers.dev/api';
+export const ORIGEN = 'https://asesorias-api-proxy.andresmartinezr2204.workers.dev/api';
 
 let cache = null;
 

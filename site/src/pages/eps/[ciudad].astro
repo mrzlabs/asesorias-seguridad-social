@@ -1,0 +1,118 @@
+---
+import Base from '../../layouts/Base.astro';
+import BotonWhatsApp from '../../componentes/BotonWhatsApp.astro';
+import { obtenerEps, epsDeCiudad } from '../../datos/eps.js';
+
+export async function getStaticPaths() {
+  const datos = await obtenerEps();
+  // Solo ciudades publicadas (el endpoint ya filtra); sin publicadas, no se
+  // genera ninguna página. Regla anti-doorway.
+  return (datos.ciudades || []).map((ciudad) => ({
+    params: { ciudad: ciudad.slug },
+    props: { ciudad, coberturas: epsDeCiudad(datos, ciudad.slug) },
+  }));
+}
+
+const { ciudad, coberturas } = Astro.props;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Inicio', item: 'https://asesoriasas.com/' },
+    { '@type': 'ListItem', position: 2, name: 'Comparador de EPS', item: 'https://asesoriasas.com/eps/' },
+    { '@type': 'ListItem', position: 3, name: `EPS en ${ciudad.nombre}` },
+  ],
+};
+---
+<Base
+  titulo={`EPS en ${ciudad.nombre}: comparación y cobertura | Asesorías SAS`}
+  descripcion={`Compara las EPS disponibles en ${ciudad.nombre}: cobertura, red de atención y particularidades para elegir o trasladarte con criterio.`}
+  ruta={`/eps/${ciudad.slug}/`}
+  jsonLd={jsonLd}
+>
+  <section class="portada-ciudad">
+    <div class="contenedor">
+      <nav class="miga" aria-label="Ruta de navegación">
+        <a href="/">Inicio</a> <span aria-hidden="true">/</span>
+        <a href="/eps/">Comparador de EPS</a> <span aria-hidden="true">/</span>
+        <span aria-current="page">{ciudad.nombre}</span>
+      </nav>
+      <h1>EPS en {ciudad.nombre}</h1>
+      {ciudad.descripcion && <p class="entrada">{ciudad.descripcion}</p>}
+    </div>
+  </section>
+
+  <section class="seccion">
+    <div class="contenedor">
+      {coberturas.length > 0 ? (
+        <>
+          <h2>EPS disponibles en {ciudad.nombre}</h2>
+          <div class="tabla-scroll">
+            <table class="comparativa">
+              <thead>
+                <tr><th>EPS</th><th>Red de atención</th><th>Particularidades</th></tr>
+              </thead>
+              <tbody>
+                {coberturas.map((c) => (
+                  <tr>
+                    <td><strong>{c.eps.nombre}</strong>{c.eps.tipo && <span class="tipo">{c.eps.tipo}</span>}</td>
+                    <td>{c.red_atencion || '—'}</td>
+                    <td>{c.particularidades || '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p class="nota-fuente">
+            Información recopilada de fuentes públicas y revisada por nuestro equipo. La
+            disponibilidad puede cambiar; confirmamos tu caso concreto antes de gestionar.
+          </p>
+        </>
+      ) : (
+        <p class="cuerpo">Estamos verificando la cobertura en {ciudad.nombre}. Escríbenos y te orientamos con tu caso.</p>
+      )}
+
+      <div class="cta">
+        <h2>¿Necesitas afiliarte o trasladarte en {ciudad.nombre}?</h2>
+        <p>Te asesoramos sin costo para elegir la EPS que más te conviene y hacemos el trámite por ti.</p>
+        <BotonWhatsApp mensaje={`Hola, quiero asesoría sobre EPS en ${ciudad.nombre}`} slug="traslado-eps">
+          Consultar por WhatsApp
+        </BotonWhatsApp>
+      </div>
+    </div>
+  </section>
+
+  <nav class="salida" aria-label="Continuar navegando">
+    <div class="contenedor salida__in">
+      <a href="/eps/" class="salida__volver"><span aria-hidden="true">←</span> Ver otras ciudades</a>
+      <a href="/" class="salida__inicio">Ir al inicio</a>
+    </div>
+  </nav>
+</Base>
+
+<style>
+  .portada-ciudad { background: var(--azul-tinta); color: var(--papel); padding-block: var(--e-8) var(--e-16); }
+  .miga { font-size: var(--t-xs); color: rgba(245, 241, 232, .55); margin-bottom: var(--e-8); }
+  .miga a { color: rgba(245, 241, 232, .78); text-decoration: none; }
+  .miga a:hover { color: var(--dorado-claro); }
+  .entrada { font-size: var(--t-lg); color: rgba(245, 241, 232, .78); max-width: 60ch; margin-top: var(--e-4); }
+  .cuerpo { font-size: var(--t-md); color: var(--tinta-suave); max-width: 60ch; }
+  .tabla-scroll { overflow-x: auto; margin-top: var(--e-6); }
+  .comparativa { width: 100%; border-collapse: collapse; min-width: 560px; }
+  .comparativa th { text-align: left; font-size: var(--t-xs); text-transform: uppercase; letter-spacing: .06em; color: var(--tinta-suave); padding: var(--e-3) var(--e-4); border-bottom: 2px solid var(--linea); }
+  .comparativa td { padding: var(--e-4); border-bottom: 1px solid var(--linea); vertical-align: top; font-size: var(--t-sm); color: var(--tinta-suave); }
+  .comparativa strong { color: var(--azul-tinta); display: block; }
+  .comparativa .tipo { font-size: var(--t-xs); color: var(--tinta-tenue); text-transform: capitalize; }
+  .nota-fuente { font-size: var(--t-xs); color: var(--tinta-tenue); margin-top: var(--e-4); max-width: 68ch; }
+  .cta { margin-top: var(--e-12); padding: var(--e-8); background: var(--dorado-tenue); border: 1px solid var(--dorado); border-radius: var(--radio); }
+  .cta h2 { margin-bottom: var(--e-2); }
+  .cta p { color: var(--tinta-suave); max-width: 54ch; margin-bottom: var(--e-5); }
+  .salida { background: var(--papel-puro); border-top: 1px solid var(--linea); }
+  .salida__in { display: flex; justify-content: space-between; align-items: center; gap: var(--e-4); flex-wrap: wrap; padding-block: var(--e-6); }
+  .salida a { font-size: var(--t-sm); font-weight: 600; text-decoration: none; }
+  .salida__volver { display: inline-flex; align-items: center; gap: var(--e-2); color: var(--azul-medio); }
+  .salida__volver span { transition: transform .28s cubic-bezier(.22,.78,.3,1); }
+  .salida__volver:hover span { transform: translateX(-4px); }
+  .salida__inicio { color: var(--tinta-tenue); }
+</style>
