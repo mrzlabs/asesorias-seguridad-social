@@ -5,6 +5,8 @@ const SERVICIOS = (await obtenerServicios()).slice(0, 8);
 const cfg = (await obtenerContenido()).config || {};
 const correo = cfg.email_contacto || '';
 const slogan = cfg.empresa_slogan || '';
+const horario = cfg.horario_atencion || '';
+const direccion = cfg.direccion || '';
 const anio = new Date().getFullYear();
 ---
 <footer class="pie">
@@ -31,8 +33,16 @@ const anio = new Date().getFullYear();
       <ul class="pie__lista">
         <li><a href="tel:+573204060607">+57 320 406 0607</a></li>
         <li><a href="tel:+573134572362">+57 313 457 2362</a></li>
+        {correo && <li><a href={`mailto:${correo}`}>{correo}</a></li>}
         <li><a href="https://www.facebook.com/Colombiasesorias" rel="noopener">Facebook</a></li>
       </ul>
+      {(horario || direccion) && (
+        <p class="pie__extra">
+          {horario}
+          {horario && direccion && <br />}
+          {direccion}
+        </p>
+      )}
 
       <h2 class="pie__tit pie__tit--sep">Legal</h2>
       <ul class="pie__lista">
@@ -94,6 +104,12 @@ const anio = new Date().getFullYear();
     text-transform: uppercase;
     color: var(--dorado-claro);
     margin-bottom: var(--e-4);
+  }
+  .pie__extra {
+    margin-top: var(--e-3);
+    font-size: var(--t-xs);
+    line-height: 1.6;
+    color: rgba(245, 241, 232, .48);
   }
   .pie__tit--sep { margin-top: var(--e-6); }
   .pie__lista { list-style: none; display: grid; gap: var(--e-2); font-size: var(--t-sm); }
