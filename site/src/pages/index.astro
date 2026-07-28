@@ -3,11 +3,15 @@ import Base from '../layouts/Base.astro';
 import BotonWhatsApp from '../componentes/BotonWhatsApp.astro';
 import FormularioLead from '../componentes/FormularioLead.astro';
 import Preguntas from '../componentes/Preguntas.astro';
+import Promociones from '../componentes/Promociones.astro';
+import CarruselServicios from '../componentes/CarruselServicios.astro';
 import { serviciosPorCategoria } from '../datos/servicios.js';
 import { obtenerContenido } from '../datos/api.js';
 
 const datos = await obtenerContenido();
 const grupos = await serviciosPorCategoria();
+const flyers = (datos.flyers || []).filter((f) => f.activo);
+const totalServicios = grupos.reduce((n, g) => n + g.servicios.length, 0);
 const destacados = grupos.flatMap((g) => g.servicios.slice(0, 1)).slice(0, 6);
 const faq = (datos.faq || []).filter((f) => f.activo);
 const testimonios = (datos.testimonios || []).filter((t) => t.activo).slice(0, 3);
@@ -99,14 +103,11 @@ const PASOS = [
   <section class="seccion">
     <div class="contenedor">
       <h2>Qué gestionamos</h2>
-      <ul class="rejilla aparece aparece--escalonado">
-        {destacados.map((s) => (
-          <li class="tarjeta">
-            <h3><a href={`/servicios/${s.slug}/`}>{s.nombre}</a></h3>
-            <p>{s.descripcion_corta}</p>
-          </li>
-        ))}
-      </ul>
+      <p class="seccion__intro">
+        {totalServicios} trámites y coberturas. Elige una categoría o desplázate
+        para verlos todos.
+      </p>
+      <CarruselServicios grupos={grupos} />
     </div>
   </section>
 
@@ -137,6 +138,18 @@ const PASOS = [
             </li>
           ))}
         </ul>
+      </div>
+    </section>
+  )}
+
+  {flyers.length > 0 && (
+    <section class="seccion promos-sec" id="promociones">
+      <div class="contenedor">
+        <h2>Promociones vigentes</h2>
+        <p class="seccion__intro">
+          Toca una promoción para verla completa y solicitarla por WhatsApp.
+        </p>
+        <Promociones flyers={flyers} />
       </div>
     </section>
   )}
@@ -297,6 +310,8 @@ const PASOS = [
   }
   .acordeon details[open] summary::after { content: '−'; }
   .acordeon details p { margin-top: var(--e-3); font-size: var(--t-sm); color: var(--tinta-suave); }
+
+  .promos-sec { background: var(--papel-puro); }
 
   .contacto { background: var(--azul-tinta); color: var(--papel); }
   .contacto__in {

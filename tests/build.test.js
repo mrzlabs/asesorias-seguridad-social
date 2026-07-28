@@ -186,3 +186,59 @@ describe('Accesibilidad', () => {
     assert.doesNotMatch(html, /-9999px/);
   });
 });
+
+describe('Promociones y carrusel', () => {
+  test('la home muestra las promociones activas de la hoja', async () => {
+    const r = await fetch(`${API}/getAllData`);
+    const datos = await r.json();
+    const activos = (datos.flyers || []).filter((f) => f.activo && f.drive_id);
+    const html = await leer('index.html');
+    for (const f of activos) {
+      assert.ok(html.includes(f.drive_id), `falta la promoción ${f.titulo}`);
+    }
+  });
+
+  test('el carrusel incluye los 24 servicios, no un recorte', async () => {
+    const html = await leer('index.html');
+    for (const slug of SLUGS) {
+      assert.match(
+        html,
+        new RegExp(`/servicios/${slug}/`),
+        `el carrusel no incluye ${slug}`
+      );
+    }
+  });
+
+  test('el carrusel ofrece filtro por cada categoría', async () => {
+    const r = await fetch(`${API}/getAllData`);
+    const datos = await r.json();
+    const cats = [...new Set((datos.servicios || []).filter((s) => s.activo).map((s) => s.categoria))];
+    const html = await leer('index.html');
+    for (const c of cats) {
+      assert.match(html, new RegExp(`data-cat="${c}"`), `falta el filtro ${c}`);
+    }
+  });
+
+  test('la home muestra todas las preguntas de la hoja', async () => {
+    const r = await fetch(`${API}/getAllData`);
+    const datos = await r.json();
+    const activas = (datos.faq || []).filter((f) => f.activo);
+    const html = await leer('index.html');
+    const tarjetas = (html.match(/class="preg__t"/g) || []).length;
+    assert.equal(tarjetas, activas.length, `${tarjetas} tarjetas para ${activas.length} preguntas`);
+  });
+
+  test('cada página tiene el botón flotante de WhatsApp', async () => {
+    for (const ruta of ['index.html', `servicios/${SLUGS[0]}/index.html`, 'servicios/index.html']) {
+      const html = await leer(ruta);
+      assert.match(html, /class="waf wa"/, `${ruta} sin botón flotante`);
+    }
+  });
+
+  test('cada página de servicio ofrece camino de vuelta', async () => {
+    for (const slug of SLUGS.slice(0, 6)) {
+      const html = await leer(`servicios/${slug}/index.html`);
+      assert.match(html, /Ver todos los servicios/, `${slug} sin salida`);
+    }
+  });
+});

@@ -1,0 +1,178 @@
+---
+// Promociones vigentes desde la hoja. Las imagenes se sirven todavia
+// desde Drive; traerlas al dominio propio mejoraria el LCP.
+const { flyers = [] } = Astro.props;
+
+const vigentes = flyers
+  .filter((f) => f.activo && f.drive_id)
+  .sort((a, b) => (a.orden || 0) - (b.orden || 0));
+
+const miniatura = (id, ancho) =>
+  `https://drive.google.com/thumbnail?id=${id}&sz=w${ancho}`;
+---
+{vigentes.length > 0 && (
+  <div class="promos">
+    <ul class="promos__lista aparece aparece--escalonado">
+      {vigentes.map((f) => (
+        <li class="promo">
+          <button
+            type="button"
+            class="promo__abrir"
+            data-titulo={f.titulo}
+            data-desc={f.descripcion}
+            data-img={miniatura(f.drive_id, 1200)}
+          >
+            <span class="promo__marco">
+              <img
+                src={miniatura(f.drive_id, 700)}
+                alt={f.titulo}
+                loading="lazy"
+                decoding="async"
+              />
+              <span class="promo__lupa" aria-hidden="true">Ver completa</span>
+            </span>
+            <span class="promo__cuerpo">
+              <strong>{f.titulo}</strong>
+              {f.descripcion && <span class="promo__desc">{f.descripcion}</span>}
+            </span>
+          </button>
+        </li>
+      ))}
+    </ul>
+  </div>
+)}
+
+<dialog class="promoModal" id="promoModal" aria-labelledby="promoTitulo">
+  <button type="button" class="promoModal__x" id="promoCerrar" aria-label="Cerrar">×</button>
+  <img id="promoImg" src="" alt="" />
+  <div class="promoModal__pie">
+    <h3 id="promoTitulo"></h3>
+    <p id="promoDesc"></p>
+    <button type="button" class="boton boton--principal wa" id="promoWa">
+      Quiero esta promoción
+    </button>
+  </div>
+</dialog>
+
+<script>
+  const modal = document.getElementById('promoModal');
+  if (modal) {
+    const img = document.getElementById('promoImg');
+    const titulo = document.getElementById('promoTitulo');
+    const desc = document.getElementById('promoDesc');
+    const wa = document.getElementById('promoWa');
+
+    document.querySelectorAll('.promo__abrir').forEach((b) => {
+      b.addEventListener('click', () => {
+        img.src = b.dataset.img;
+        img.alt = b.dataset.titulo;
+        titulo.textContent = b.dataset.titulo;
+        desc.textContent = b.dataset.desc || '';
+        wa.dataset.mensaje = 'Hola, me interesa la promoción: ' + b.dataset.titulo;
+        modal.showModal();
+      });
+    });
+
+    document.getElementById('promoCerrar').addEventListener('click', () => modal.close());
+    // Cerrar al pulsar fuera del contenido.
+    modal.addEventListener('click', (ev) => { if (ev.target === modal) modal.close(); });
+  }
+</script>
+
+<style>
+  .promos__lista {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(270px, 380px));
+    gap: var(--e-6);
+  }
+
+  .promo__abrir {
+    display: grid;
+    gap: 0;
+    width: 100%;
+    padding: 0;
+    background: var(--papel-puro);
+    border: 1px solid var(--linea);
+    border-radius: var(--radio-lg);
+    overflow: hidden;
+    cursor: pointer;
+    text-align: left;
+    font-family: inherit;
+    color: inherit;
+    transition:
+      transform .4s cubic-bezier(.22, .78, .3, 1),
+      box-shadow .4s cubic-bezier(.22, .78, .3, 1),
+      border-color .4s ease;
+  }
+  .promo__abrir:hover,
+  .promo__abrir:focus-visible {
+    transform: translateY(-5px);
+    border-color: var(--dorado);
+    box-shadow: 0 18px 40px rgba(11, 37, 69, .16);
+  }
+
+  .promo__marco { position: relative; display: block; overflow: hidden; background: var(--azul-tinta); }
+  .promo__marco img {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    transition: transform .55s cubic-bezier(.22, .78, .3, 1), opacity .4s ease;
+  }
+  .promo__abrir:hover img { transform: scale(1.045); opacity: .82; }
+
+  /* La etiqueta emerge desde abajo con la misma curva del resto. */
+  .promo__lupa {
+    position: absolute;
+    left: var(--e-4);
+    bottom: var(--e-4);
+    font-size: var(--t-xs);
+    font-weight: 600;
+    color: var(--azul-tinta);
+    background: var(--dorado);
+    padding: 6px 13px;
+    border-radius: 999px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity .34s ease, transform .4s cubic-bezier(.22, .78, .3, 1);
+  }
+  .promo__abrir:hover .promo__lupa,
+  .promo__abrir:focus-visible .promo__lupa { opacity: 1; transform: translateY(0); }
+
+  .promo__cuerpo { display: grid; gap: 3px; padding: var(--e-4) var(--e-6) var(--e-6); }
+  .promo__cuerpo strong { font-family: var(--fuente-titulo); font-size: var(--t-md); font-weight: 600; }
+  .promo__desc { font-size: var(--t-sm); color: var(--tinta-suave); }
+
+  .promoModal {
+    max-width: 560px;
+    width: calc(100% - 2rem);
+    padding: 0;
+    border: none;
+    border-radius: var(--radio-lg);
+    background: var(--papel-puro);
+    color: var(--tinta);
+    overflow: hidden;
+  }
+  .promoModal::backdrop { background: rgba(11, 37, 69, .68); backdrop-filter: blur(3px); }
+  .promoModal img { width: 100%; display: block; }
+  .promoModal__x {
+    position: absolute;
+    top: 10px; right: 10px;
+    width: 34px; height: 34px;
+    border: none; border-radius: 50%;
+    background: rgba(11, 37, 69, .72);
+    color: #fff; font-size: 21px; line-height: 1;
+    cursor: pointer;
+  }
+  .promoModal__x:hover { background: var(--azul-tinta); }
+  .promoModal__pie { padding: var(--e-6); display: grid; gap: var(--e-2); justify-items: start; }
+  .promoModal__pie h3 { font-size: var(--t-lg); }
+  .promoModal__pie p { font-size: var(--t-sm); color: var(--tinta-suave); }
+  .promoModal__pie .boton { margin-top: var(--e-2); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .promo__abrir, .promo__marco img, .promo__lupa { transition: none; }
+    .promo__abrir:hover { transform: none; }
+    .promo__abrir:hover img { transform: none; }
+  }
+</style>
