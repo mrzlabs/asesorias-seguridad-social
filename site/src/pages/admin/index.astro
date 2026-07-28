@@ -1,0 +1,50 @@
+---
+// Índice del panel de administración. No indexable (robots bloquea /admin +
+// Cloudflare Access delante). Enlaces a cada sección y botón Publicar.
+const API = 'https://asesorias-api-proxy.andresmartinezr2204.workers.dev/api';
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Panel · Inicio</title>
+    <style>
+      body { font: 15px/1.5 system-ui, sans-serif; margin: 0; padding: 1.5rem; max-width: 720px; }
+      h1 { font-size: 1.4rem; }
+      nav { display: grid; gap: .75rem; margin: 1.5rem 0; }
+      a.tarjeta { display: block; padding: 1rem; border: 1px solid #d8d2c4; border-radius: 8px;
+        text-decoration: none; color: inherit; }
+      a.tarjeta:hover { background: rgba(31, 58, 95, .06); }
+      a.tarjeta strong { display: block; color: #1f3a5f; }
+      button { font: inherit; background: #1f3a5f; color: #fff; border: 0; border-radius: 6px;
+        cursor: pointer; padding: .6rem 1.2rem; }
+      #gate { max-width: 320px; }
+      #gate label { display: block; margin: 1rem 0 .5rem; }
+      #gate input { width: 100%; padding: .5rem; border: 1px solid #d8d2c4; border-radius: 6px; }
+      #aviso { margin-top: 1rem; color: #1f6f3a; }
+      [role="alert"] { color: #b00020; }
+    </style>
+  </head>
+  <body data-api={API}>
+    <section id="gate" hidden>
+      <h1>Panel</h1>
+      <label>Clave de acceso <input id="clave" type="password" autocomplete="off" /></label>
+      <button id="entrar">Entrar</button>
+      <p id="gate-error" role="alert"></p>
+    </section>
+    <section id="app" hidden>
+      <h1>Panel de administración</h1>
+      <nav>
+        <a class="tarjeta" href="/admin/leads/"><strong>Leads</strong>Gestión de contactos y estados</a>
+        <a class="tarjeta" href="/admin/contenido/"><strong>Contenido</strong>Servicios, FAQ, testimonios y promociones</a>
+        <a class="tarjeta" href="/admin/parametros/"><strong>Parámetros</strong>Salario mínimo, tasas y ajustes del sitio</a>
+      </nav>
+      <p>Tras editar contenido o parámetros, pulsa <strong>Publicar</strong> para que los cambios se reflejen en el sitio (la reconstrucción tarda ~1–2 min).</p>
+      <button id="publicar">Publicar cambios</button>
+      <p id="aviso" hidden></p>
+    </section>
+    <script src="../../scripts/panel-hub.js"></script>
+  </body>
+</html>

@@ -1,0 +1,49 @@
+---
+const API = 'https://asesorias-api-proxy.andresmartinezr2204.workers.dev/api';
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Panel · Contenido</title>
+    <style>
+      body { font: 15px/1.5 system-ui, sans-serif; margin: 0; padding: 1.5rem; max-width: 1000px; }
+      h1 { font-size: 1.4rem; }
+      a.volver { color: #1f3a5f; }
+      #tabs { display: flex; gap: .5rem; margin: 1rem 0; flex-wrap: wrap; }
+      #tabs button { background: #eee; color: #333; }
+      #tabs button.activo { background: #1f3a5f; color: #fff; }
+      button { font: inherit; background: #1f3a5f; color: #fff; border: 0; border-radius: 5px; cursor: pointer; padding: .35rem .8rem; }
+      .item { border: 1px solid #d8d2c4; border-radius: 8px; padding: .8rem; margin-bottom: .8rem; }
+      .item label { display: block; font-size: .8rem; color: #555; margin-top: .4rem; }
+      .item input, .item textarea { width: 100%; padding: .35rem; border: 1px solid #d8d2c4; border-radius: 5px; }
+      .item textarea { min-height: 3rem; }
+      .fila-acc { display: flex; gap: .8rem; align-items: center; margin-top: .6rem; }
+      .del { background: #b00020; }
+      #gate { max-width: 320px; }
+      #gate label { display: block; margin: 1rem 0 .5rem; }
+      #gate input { width: 100%; padding: .5rem; border: 1px solid #d8d2c4; border-radius: 6px; }
+      .nota { background: #fff8e6; border: 1px solid #e6d9a8; padding: .6rem .8rem; border-radius: 6px; margin: 1rem 0; }
+      .guardado { color: #1f6f3a; font-size: .85rem; }
+      [role="alert"] { color: #b00020; }
+    </style>
+  </head>
+  <body data-api={API}>
+    <section id="gate" hidden>
+      <h1>Contenido</h1>
+      <label>Clave de acceso <input id="clave" type="password" autocomplete="off" /></label>
+      <button id="entrar">Entrar</button>
+      <p id="gate-error" role="alert"></p>
+    </section>
+    <section id="app" hidden>
+      <p><a class="volver" href="/admin/">← Panel</a></p>
+      <h1>Contenido</h1>
+      <p class="nota">Los cambios se guardan en la base al instante, pero <strong>solo se ven en el sitio tras pulsar «Publicar»</strong> en el inicio del panel.</p>
+      <div id="tabs"></div>
+      <div id="lista"></div>
+    </section>
+    <script src="../../scripts/panel-contenido.js"></script>
+  </body>
+</html>
