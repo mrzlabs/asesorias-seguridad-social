@@ -1,6 +1,10 @@
 ---
 import { obtenerServicios } from '../datos/servicios.js';
+import { obtenerContenido } from '../datos/api.js';
 const SERVICIOS = (await obtenerServicios()).slice(0, 8);
+const cfg = (await obtenerContenido()).config || {};
+const correo = cfg.email_contacto || '';
+const slogan = cfg.empresa_slogan || '';
 const anio = new Date().getFullYear();
 ---
 <footer class="pie">
@@ -8,8 +12,8 @@ const anio = new Date().getFullYear();
     <div>
       <div class="pie__marca">Asesorías Seguridad Social SAS</div>
       <p class="pie__desc">
-        Afiliaciones y trámites de seguridad social en toda Colombia.
-        Gestión 100% online.
+        {slogan || 'Afiliaciones y trámites de seguridad social en toda Colombia.'}
+        {correo && <><br /><a class="pie__correo" href={`mailto:${correo}`}>{correo}</a></>}
       </p>
     </div>
 
@@ -45,6 +49,7 @@ const anio = new Date().getFullYear();
         <span class="firma__marca" aria-hidden="true">&lt;/&gt;</span>
         <span class="firma__txt">
           Desarrollado por <strong>MrzLabs</strong>
+          <span class="firma__correo">contacto@mrzlabs.dev</span>
         </span>
       </a>
     </div>
@@ -71,7 +76,16 @@ const anio = new Date().getFullYear();
     color: var(--papel);
     margin-bottom: var(--e-3);
   }
-  .pie__desc { font-size: var(--t-sm); max-width: 34ch; }
+  .pie__desc { font-size: var(--t-sm); max-width: 36ch; }
+  .pie__correo {
+    display: inline-block;
+    margin-top: var(--e-2);
+    color: var(--dorado-claro);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color .25s ease;
+  }
+  .pie__correo:hover { border-bottom-color: var(--dorado-claro); }
   .pie__tit {
     font-family: var(--fuente-texto);
     font-size: var(--t-xs);
@@ -119,7 +133,13 @@ const anio = new Date().getFullYear();
     color: var(--dorado-claro);
     transition: background-color .28s ease, border-color .28s ease, transform .34s cubic-bezier(.34,1.3,.5,1);
   }
+  .firma__txt { display: inline-flex; align-items: baseline; gap: var(--e-2); flex-wrap: wrap; }
   .firma strong { font-weight: 600; }
+  .firma__correo {
+    color: rgba(245, 241, 232, .34);
+    transition: color .28s ease;
+  }
+  .firma:hover .firma__correo { color: var(--dorado-claro); }
   .firma:hover { color: var(--papel); }
   .firma:hover .firma__marca {
     background: var(--dorado);

@@ -139,3 +139,78 @@ a { color: inherit; text-decoration-color: var(--dorado); text-underline-offset:
   margin-bottom: var(--e-6);
   max-width: 60ch;
 }
+
+/* ---- Profundidad de fondo ----
+   Los bloques planos de color dejan los titulares sin relieve. En vez de
+   un degradado de color (el recurso que identifica a una plantilla) se
+   usan dos capas discretas: grano de impresion y un halo de luz. Ambas
+   van en pseudoelementos, sin peticiones extra ni nodos en el HTML. */
+
+.portada,
+.contacto,
+.cabecera,
+.legal-cab,
+.portada-servicio,
+.cab {
+  position: relative;
+  isolation: isolate;
+}
+
+/* Grano: textura de tinta impresa. Muy bajo contraste, se percibe como
+   materia sin llegar a leerse como ruido. */
+.portada::after,
+.contacto::after,
+.cabecera::after,
+.legal-cab::after,
+.portada-servicio::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: .5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23g)' opacity='.055'/%3E%3C/svg%3E");
+}
+
+/* Halo: una fuente de luz fuera de cuadro que despega el texto del
+   fondo. Radial y descentrado, no el degradado lineal a 135 grados. */
+.portada::before,
+.contacto::before,
+.portada-servicio::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 90% at 88% -10%, rgba(217, 180, 73, .13) 0%, transparent 58%),
+    radial-gradient(90% 70% at 5% 105%, rgba(46, 82, 136, .35) 0%, transparent 60%);
+}
+
+/* Los titulares sobre fondo oscuro reciben una sombra minima: los
+   despega del fondo sin que se note que hay sombra. */
+.portada h1,
+.portada-servicio h1,
+.cabecera h1,
+.legal-cab h1,
+.contacto h2 {
+  text-shadow: 0 1px 2px rgba(4, 16, 32, .32);
+}
+
+/* Las secciones claras se separan entre si con un filo de luz en vez de
+   una linea dura. */
+.proceso,
+.relacionados,
+.promos-sec,
+.grupo:nth-child(odd) {
+  position: relative;
+}
+.proceso::before,
+.relacionados::before,
+.promos-sec::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--linea) 18%, var(--linea) 82%, transparent);
+}
