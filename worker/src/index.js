@@ -36,53 +36,23 @@ export default {
 
     try {
       if (url.pathname === '/api/getAllData' && request.method === 'GET') {
-        const cache = caches.default;
-        const cacheKey = new Request(url.toString(), request);
-        let cached = await cache.match(cacheKey);
-        if (cached) {
-          const headers = new Headers(cached.headers);
-          Object.entries(corsHeaders).forEach(([k, v]) => headers.set(k, v));
-          headers.set('X-Cache', 'HIT');
-          return new Response(cached.body, { status: cached.status, headers });
-        }
-
-        // Cutover: el contenido se arma desde D1 (ver ADR 0002 y spec).
+        // Sin caché: se lee en el build del sitio. Una caché (por colo) provoca
+        // que un build tome datos viejos y publique contenido desactualizado.
         const data = await getAllDataDesdeD1(env.DB);
-        const response = new Response(JSON.stringify(data), {
+        return new Response(JSON.stringify(data), {
           status: 200,
-          headers: {
-            'Content-Type': 'application/json',
-            'Cache-Control': 'public, max-age=300',
-            'X-Cache': 'MISS',
-            ...corsHeaders,
-          },
+          headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...corsHeaders },
         });
-        ctx.waitUntil(cache.put(cacheKey, response.clone()));
-        return response;
       }
 
       if (url.pathname === '/api/eps' && request.method === 'GET') {
-        const cache = caches.default;
-        const cacheKey = new Request(url.toString(), request);
-        const cached = await cache.match(cacheKey);
-        if (cached) {
-          const headers = new Headers(cached.headers);
-          Object.entries(corsHeaders).forEach(([k, v]) => headers.set(k, v));
-          headers.set('X-Cache', 'HIT');
-          return new Response(cached.body, { status: cached.status, headers });
-        }
+        // Sin caché (misma razón que getAllData): evita que el build genere
+        // paginas de ciudades ya despublicadas por leer una respuesta vieja.
         const data = await getEpsData(env.DB);
-        const response = new Response(JSON.stringify(data), {
+        return new Response(JSON.stringify(data), {
           status: 200,
-          headers: {
-            'Content-Type': 'application/json',
-            'Cache-Control': 'public, max-age=300',
-            'X-Cache': 'MISS',
-            ...corsHeaders,
-          },
+          headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', ...corsHeaders },
         });
-        ctx.waitUntil(cache.put(cacheKey, response.clone()));
-        return response;
       }
 
       if (url.pathname === '/api/lead' && request.method === 'POST') {
