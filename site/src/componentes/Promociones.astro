@@ -4,8 +4,11 @@
 // critica y no permite controlar formato ni compresion.
 const { flyers = [] } = Astro.props;
 
+// Las imagenes se sirven locales (derivadas del titulo), asi que ya no se
+// filtra por drive_id: ese campo era del esquema antiguo de Google Drive y no
+// existe en la tabla `promociones` de D1.
 const vigentes = flyers
-  .filter((f) => f.activo && f.drive_id)
+  .filter((f) => f.activo)
   .sort((a, b) => (a.orden || 0) - (b.orden || 0));
 
 /** Nombre de archivo local derivado del titulo, igual que en la descarga. */
