@@ -10,7 +10,8 @@ let cache = null;
 export async function obtenerContenido() {
   if (cache) return cache;
 
-  const r = await fetch(`${ORIGEN}/getAllData`);
+  // Anti-cache por build: URL unica por compilacion (ver eps.js).
+  const r = await fetch(`${ORIGEN}/getAllData?_=${Date.now()}`);
   if (!r.ok) {
     // Fallar el build es deliberado: publicar el sitio sin contenido lo
     // sacaria del indice de Google.

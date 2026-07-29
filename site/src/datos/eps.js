@@ -8,7 +8,9 @@ let cache = null;
 
 export async function obtenerEps() {
   if (cache) return cache;
-  const r = await fetch(`${ORIGEN}/eps`);
+  // Anti-cache por build: URL unica en cada compilacion para que el build
+  // nunca tome una respuesta cacheada (por colo) con datos ya cambiados.
+  const r = await fetch(`${ORIGEN}/eps?_=${Date.now()}`);
   if (!r.ok) throw new Error(`La API /eps respondió ${r.status}. El build se detiene a propósito.`);
   cache = await r.json();
   return cache;
