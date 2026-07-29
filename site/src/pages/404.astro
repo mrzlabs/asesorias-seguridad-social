@@ -1,0 +1,37 @@
+---
+import Base from '../layouts/Base.astro';
+// Sin esta página, Cloudflare Pages sirve la home (200) para cualquier ruta
+// inexistente: un soft-404 que Google penaliza como contenido duplicado.
+// Con 404.html, Pages responde 404 real y muestra esta página.
+---
+<Base
+  titulo="Página no encontrada | Asesorías Seguridad Social"
+  descripcion="La página que buscas no existe o fue movida."
+  ruta="/404/"
+  noindex={true}
+>
+  <section class="e404">
+    <div class="contenedor e404__in">
+      <span class="e404__num">404</span>
+      <h1>Esta página no existe</h1>
+      <p>Puede que el enlace esté roto o que la página se haya movido. Desde aquí puedes seguir:</p>
+      <div class="e404__acciones">
+        <a class="boton boton--principal" href="/">Ir al inicio</a>
+        <a class="boton boton--contorno" href="/servicios/">Ver servicios</a>
+        <a class="boton boton--contorno" href="/herramientas/calculadora-aportes/">Calculadora de aportes</a>
+      </div>
+      <p class="e404__ayuda">¿Necesitas ayuda con una afiliación o trámite? Escríbenos por WhatsApp al <a href="https://wa.me/573204060607">320 406 0607</a>.</p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .e404 { background: var(--azul-tinta); color: var(--papel); min-height: 60vh; display: grid; place-items: center; padding-block: var(--e-16); }
+  .e404__in { text-align: center; max-width: 46ch; }
+  .e404__num { display: block; font-family: var(--fuente-titulo); font-size: clamp(4rem, 14vw, 8rem); line-height: 1; color: var(--dorado-claro); }
+  .e404 h1 { margin: var(--e-4) 0 var(--e-3); }
+  .e404 p { color: rgba(245, 241, 232, .78); }
+  .e404__acciones { display: flex; gap: var(--e-3); justify-content: center; flex-wrap: wrap; margin: var(--e-6) 0; }
+  .e404__ayuda { font-size: var(--t-sm); }
+  .e404__ayuda a { color: var(--dorado-claro); }
+</style>

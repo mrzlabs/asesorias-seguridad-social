@@ -15,7 +15,7 @@ const ga4 = (cfg.ga4_id || '').trim();
 // la clave google_site_verification.
 const verificacion = (cfg.google_site_verification || '').trim();
 
-const { titulo, descripcion, ruta = '/', jsonLd = null } = Astro.props;
+const { titulo, descripcion, ruta = '/', jsonLd = null, noindex = false } = Astro.props;
 const canonical = new URL(ruta, Astro.site).href;
 const imagen = new URL('/og-image.png', Astro.site).href;
 ---
@@ -28,7 +28,7 @@ const imagen = new URL('/og-image.png', Astro.site).href;
   <title>{titulo}</title>
   <meta name="description" content={descripcion} />
   <link rel="canonical" href={canonical} />
-  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large'} />
   <meta name="theme-color" content="#0B2545" />
 
   <meta property="og:title" content={titulo} />
