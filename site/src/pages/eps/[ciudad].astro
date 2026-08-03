@@ -39,7 +39,9 @@ const jsonLd = {
         <span aria-current="page">{ciudad.nombre}</span>
       </nav>
       <h1>EPS en {ciudad.nombre}</h1>
-      {ciudad.descripcion && <p class="entrada">{ciudad.descripcion}</p>}
+      {ciudad.descripcion && ciudad.descripcion.split('\n').filter(Boolean).map((p) => (
+        <p class="entrada">{p}</p>
+      ))}
     </div>
   </section>
 
@@ -51,14 +53,13 @@ const jsonLd = {
           <div class="tabla-scroll">
             <table class="comparativa">
               <thead>
-                <tr><th>EPS</th><th>Red de atención</th><th>Particularidades</th></tr>
+                <tr><th>EPS</th><th>Características</th></tr>
               </thead>
               <tbody>
                 {coberturas.map((c) => (
                   <tr>
                     <td><strong>{c.eps.nombre}</strong>{c.eps.tipo && <span class="tipo">{c.eps.tipo}</span>}</td>
-                    <td>{c.red_atencion || '—'}</td>
-                    <td>{c.particularidades || '—'}</td>
+                    <td>{c.particularidades || 'Disponible en la ciudad. Te confirmamos la red actualizada según tu zona.'}</td>
                   </tr>
                 ))}
               </tbody>
